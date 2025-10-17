@@ -5,7 +5,6 @@
     <title>照明總成本長條圖</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // 設定 Tailwind 配置 (包含新的顏色)
         tailwind.config = {
             theme: {
                 extend: {
@@ -13,74 +12,71 @@
                         sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
                     },
                     colors: {
-                        // 產品條顏色
                         'primary-green': '#10b981',
                         'secondary-blue': '#3b82f6',
                         'light-red': '#f87171', 
                         'light-yellow': '#fbbf24', 
-
-                        // 新的成本組成顏色
-                        'cost-initial': '#6B8F71',     // 初始成本 - Reseda green
-                        'cost-electricity': '#EDAE49', // 電費 - Hunyadi yellow
-                        'cost-repair': '#D1495B',      // 換修成本 - Amaranth
+                        'cost-initial': '#6B8F71',  
+                        'cost-electricity': '#EDAE49',
+                        'cost-repair': '#D1495B',   
                     }
                 }
             }
         }
     </script>
     <style>
-        /* 確保 body 沒有 padding 和 margin，避免影響內嵌尺寸 */
         body {
             padding: 0; 
             margin: 0; 
-            overflow: hidden; 
+            overflow-x: hidden; /* 允許垂直滾動，但防止水平滾動 */
             font-family: 'Inter', 'Noto Sans TC', 'sans-serif';
-            /* 讓圖表背景透明，顯示主頁的背景色 */
             background-color: transparent; 
         }
 
-        /* 核心圖表容器樣式 */
         .bar-container {
             display: flex;
             align-items: flex-end;
             height: 300px;
+            /* 預留左側空間給 Y 軸標籤 */
+            margin-left: 3rem; 
         }
 
-        /* 長條圖動畫 */
         .bar {
             transition: height 0.8s ease-out;
             cursor: pointer;
         }
 
-        /* 讓 Y 軸標籤的絕對定位是相對於圖表邊界 */
+        /* 修正 Y 軸標籤定位：現在它們位於 bar-container 的左側邊界 */
         .y-axis-labels {
             position: absolute;
             top: 0;
+            /* 將 Y 軸定位在圖表區域的左上角 */
             left: 0; 
             height: 100%;
-            transform: translateX(-100%); 
-            padding-right: 0.5rem; 
+            /* 讓標籤位於圖表邊界左側的 3rem 空間內 */
+            margin-left: 0.5rem; 
             color: #6b7280; 
-            font-size: 0.75rem; 
             z-index: 10; 
             pointer-events: none;
         }
         .y-axis-labels > div {
             position: absolute;
-            right: 0;
+            right: 100%; /* 讓數字貼著 Y 軸左邊 */
+            padding-right: 0.5rem; /* 數字和 Y 軸線的間隔 */
             white-space: nowrap;
             font-size: 0.875rem;
+            transform: translateY(-50%); /* 確保垂直居中 */
         }
-        .y-axis-labels > div:first-child { top: -0.5rem; } 
-        .y-axis-labels > div:nth-child(2) { top: 33.333333%; transform: translateY(-50%); } 
-        .y-axis-labels > div:last-child { bottom: -0.5rem; transform: translateY(50%); } 
+        .y-axis-labels > div:first-child { top: 0; } 
+        .y-axis-labels > div:nth-child(2) { top: 33.333333%; } 
+        .y-axis-labels > div:last-child { bottom: 0; } 
 
     </style>
 </head>
 <body>
     <div id="chart-widget" class="relative p-0 m-0 w-full h-full">
         
-        <h2 class="text-xl font-bold mb-4 text-gray-700">總持有成本長條圖 (NT$)</h2>
+        <h2 class="text-xl font-bold mb-4 text-gray-700 ml-12">總持有成本長條圖 (NT$)</h2>
         
         <div class="bar-container relative border-b border-l border-gray-300">
             
@@ -94,13 +90,12 @@
                 </div>
         </div>
 
-        <div id="chart-labels" class="flex pt-2 text-center text-xs sm:text-sm font-semibold">
+        <div id="chart-labels" class="flex pt-2 text-center text-xs sm:text-sm font-semibold ml-12">
             </div>
 
     </div>
 
     <script>
-        // 產品數據 (與您提供的相同)
         const productData = [
             { name: "金鍏LED平板燈 (21W)", color: 'bg-primary-green', initial: 1400, electricity: 1533, repair: 0, hoverColor: 'hover:bg-green-700' },
             { name: "市售LED平板燈 (25W)", color: 'bg-secondary-blue', initial: 500, electricity: 1825, repair: 2000, hoverColor: 'hover:bg-blue-700' },
@@ -125,15 +120,12 @@
                 const barDiv = document.createElement('div');
                 const borderColorClass = index === 0 ? 'border-2 border-primary-green/70 ring-2 ring-primary-green/50' : '';
                 
-                // 修正了 w-1/4 和 mx-1/2 的類別名稱 (使用 w-1/4 和 mx-2 確保間隔)
                 barDiv.className = `bar w-1/4 h-0 mx-2 flex flex-col justify-end items-center rounded-t-lg ${data.color} relative group shadow-lg ${borderColorClass}`;
                 barDiv.style.height = `${heightPercentage}%`;
                 barDiv.style.minHeight = '10px'; 
                 
-                // --- 新增: 金鍏平板燈 (index === 0) 頂部的 "賺!" 圖示 ---
                 if (index === 0) {
                     const profitIconDiv = document.createElement('div');
-                    // 修正 top 定位，使其在金額上方並相對明顯
                     profitIconDiv.className = 'absolute right-1/2 translate-x-1/2 w-12 h-12 rounded-full bg-cost-repair flex items-center justify-center shadow-2xl z-30 transform hover:scale-110 transition-transform duration-300 border-4 border-white top-[-70px]';
                     profitIconDiv.innerHTML = '<span class="text-2xl font-black text-white">賺!</span>';
                     barDiv.appendChild(profitIconDiv);
@@ -144,7 +136,6 @@
                 totalCostLabel.innerHTML = `NT$ ${totalCost.toLocaleString()}`;
                 barDiv.appendChild(totalCostLabel);
 
-                // 成本堆疊 (使用新的顏色類別)
                 const costs = [
                     { value: data.repair, label: '5年換修', color: 'bg-cost-repair' }, 
                     { value: data.electricity, label: '5年電費', color: 'bg-cost-electricity' },
@@ -170,14 +161,13 @@
                 chartBars.appendChild(barDiv);
 
                 const labelDiv = document.createElement('div');
-                labelDiv.className = 'w-1/4 px-2 truncate'; // 確保 X 軸標籤與長條圖寬度一致
-                labelDiv.textContent = data.name.split('(')[0].trim(); // 只顯示主要名稱
+                labelDiv.className = 'w-1/4 px-2 truncate'; 
+                labelDiv.textContent = data.name.split('(')[0].trim(); 
                 labelDiv.title = data.name; 
                 chartLabels.appendChild(labelDiv);
             });
         }
 
-        // 確保在所有 DOM 載入後執行圖表繪製
         document.addEventListener('DOMContentLoaded', renderChart);
         if (document.readyState === 'complete') {
             renderChart();
