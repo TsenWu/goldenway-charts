@@ -74,9 +74,9 @@
             font-size: 0.875rem;
             transform: translateY(-50%); 
         }
-        /* 根據新的 maxCost=6350 調整 Y 軸百分比定位 */
+        /* 根據 maxCost=6350 調整 Y 軸百分比定位 */
         .y-axis-labels > div:first-child { top: 0; } 
-        .y-axis-labels > div:nth-child(2) { top: calc(100% * (1 - 4333/6350)); } /* 約 31.7% */
+        .y-axis-labels > div:nth-child(2) { top: calc(100% * (1 - 4333/6350)); }
         .y-axis-labels > div:last-child { bottom: 0; } 
 
     </style>
@@ -104,26 +104,21 @@
     </div>
 
     <script>
-        // 產品數據 - 來自您最新的主頁內容
+        // 產品數據 - 根據您的最新要求更新名稱
         const productData = [
-            { name: "金鍏LED平板燈 (60x60cm)", color: 'bg-primary-green', initial: 1400, electricity: 1575, repair: 0, hoverColor: 'hover:bg-green-700' },
-            { name: "LED平板燈 (60x60cm)", color: 'bg-secondary-blue', initial: 500, electricity: 3000, repair: 750, hoverColor: 'hover:bg-blue-700' },
-            { name: "格柵燈(LED T8 4支/組)", color: 'bg-light-yellow', initial: 750, electricity: 3225, repair: 800, hoverColor: 'hover:bg-yellow-600' }, 
-            { name: "格柵燈 T5 螢光燈管 4支/組", color: 'bg-light-red', initial: 750, electricity: 4800, repair: 800, hoverColor: 'hover:bg-red-700' }, 
+            // 名稱修正為: 金鍏LED平板燈
+            { name: "金鍏LED平板燈", color: 'bg-primary-green', initial: 1400, electricity: 1575, repair: 0, hoverColor: 'hover:bg-green-700' },
+            // 名稱修正為: 市售LED平板燈
+            { name: "市售LED平板燈", color: 'bg-secondary-blue', initial: 500, electricity: 3000, repair: 750, hoverColor: 'hover:bg-blue-700' },
+            // 名稱修正為: 格柵燈(LED T8燈管*4)
+            { name: "格柵燈(LED T8燈管*4)", color: 'bg-light-yellow', initial: 750, electricity: 3225, repair: 800, hoverColor: 'hover:bg-yellow-600' }, 
+            // 名稱修正為: 格柵燈(T5螢光燈管*4)
+            { name: "格柵燈(T5螢光燈管*4)", color: 'bg-light-red', initial: 750, electricity: 4800, repair: 800, hoverColor: 'hover:bg-red-700' }, 
         ];
 
         const chartBars = document.getElementById('chart-bars');
         const chartLabels = document.getElementById('chart-labels');
-        // 最大成本 - 來自您最新的主頁內容
         const maxCost = 6350; 
-
-        // X 軸短名稱對應表 - 來自您最新的主頁內容
-        const shortNameMap = {
-            "金鍏平板燈 (60x60cm)": "金鍏LED平板燈",
-            "市售LED平板燈 (60x60cm)": "市售LED平板燈",
-            "格柵燈(LED T8 4支/組)": "格柵燈(LED T8燈管*4)",
-            "格柵燈 T5 螢光燈管 4支/組": "格柵燈(T5螢光燈管*4)",
-        };
 
         function renderChart() {
             if (!chartBars || !chartLabels) return; 
@@ -138,16 +133,14 @@
                 const barDiv = document.createElement('div');
                 const borderColorClass = index === 0 ? 'border-2 border-primary-green/70 ring-2 ring-primary-green/50' : '';
                 
-                // 調整 mx-1 md:mx-2 以更好地適應四個長條圖的寬度
                 barDiv.className = `bar w-1/4 h-0 mx-1 md:mx-2 flex flex-col justify-end items-center rounded-t-lg ${data.color} relative group shadow-lg ${borderColorClass}`;
                 barDiv.style.height = `${heightPercentage}%`;
                 barDiv.style.minHeight = '10px'; 
                 
-                // --- 修正: 金鍏平板燈 (index === 0) 頂部的 "省!" 圖示 ---
+                // --- 頂部的 "省!" 圖示 ---
                 if (index === 0) {
                     const profitIconDiv = document.createElement('div');
                     profitIconDiv.className = 'absolute right-1/2 translate-x-1/2 w-12 h-12 rounded-full bg-cost-repair flex items-center justify-center shadow-2xl z-30 transform hover:scale-110 transition-transform duration-300 border-4 border-white top-[-70px]';
-                    // 修正：將「賺!」改為「省!」
                     profitIconDiv.innerHTML = '<span class="text-2xl font-black text-white">省!</span>';
                     barDiv.appendChild(profitIconDiv);
                 }
@@ -182,9 +175,9 @@
                 chartBars.appendChild(barDiv);
 
                 const labelDiv = document.createElement('div');
-                // 修正：使用短名稱，並移除 'truncate' 確保顯示完整
+                // 修正：移除 truncate 類別和短名稱對應，直接使用完整的產品名稱 (確保顯示完整)
                 labelDiv.className = 'w-1/4 px-1 md:px-2'; 
-                labelDiv.textContent = shortNameMap[data.name] || data.name.split(' ')[0]; 
+                labelDiv.textContent = data.name; 
                 labelDiv.title = data.name; 
                 chartLabels.appendChild(labelDiv);
             });
@@ -198,5 +191,3 @@
     </script>
 </body>
 </html>
-
-
