@@ -19,6 +19,8 @@
                         'cost-initial': '#6B8F71',  
                         'cost-electricity': '#EDAE49',
                         'cost-repair': '#D1495B',   
+                        // 新增一個用於金鍏燈邊框的黃色
+                        'goldwell-border-yellow': '#FACC15', // Tailwind 的 yellow-400
                     }
                 }
             }
@@ -104,15 +106,10 @@
     </div>
 
     <script>
-        // 產品數據 - 根據您的最新要求更新名稱
         const productData = [
-            // 名稱修正為: 金鍏LED平板燈
             { name: "金鍏LED平板燈", color: 'bg-primary-green', initial: 1400, electricity: 1575, repair: 0, hoverColor: 'hover:bg-green-700' },
-            // 名稱修正為: 市售LED平板燈
             { name: "市售LED平板燈", color: 'bg-secondary-blue', initial: 500, electricity: 3000, repair: 750, hoverColor: 'hover:bg-blue-700' },
-            // 名稱修正為: 格柵燈(LED T8燈管*4)
             { name: "格柵燈(LED T8燈管*4)", color: 'bg-light-yellow', initial: 750, electricity: 3225, repair: 800, hoverColor: 'hover:bg-yellow-600' }, 
-            // 名稱修正為: 格柵燈(T5螢光燈管*4)
             { name: "格柵燈(T5螢光燈管*4)", color: 'bg-light-red', initial: 750, electricity: 4800, repair: 800, hoverColor: 'hover:bg-red-700' }, 
         ];
 
@@ -131,7 +128,8 @@
                 const heightPercentage = (totalCost / maxCost) * 100;
                 
                 const barDiv = document.createElement('div');
-                const borderColorClass = index === 0 ? 'border-2 border-primary-green/70 ring-2 ring-primary-green/50' : '';
+                // 修正：金鍏LED平板燈堆疊柱狀圖的邊框顏色改為黃色
+                const borderColorClass = index === 0 ? 'border-2 border-goldwell-border-yellow/70 ring-2 ring-goldwell-border-yellow/50' : '';
                 
                 barDiv.className = `bar w-1/4 h-0 mx-1 md:mx-2 flex flex-col justify-end items-center rounded-t-lg ${data.color} relative group shadow-lg ${borderColorClass}`;
                 barDiv.style.height = `${heightPercentage}%`;
@@ -175,8 +173,12 @@
                 chartBars.appendChild(barDiv);
 
                 const labelDiv = document.createElement('div');
-                // 修正：移除 truncate 類別和短名稱對應，直接使用完整的產品名稱 (確保顯示完整)
-                labelDiv.className = 'w-1/4 px-1 md:px-2'; 
+                // 修正：為金鍏LED平板燈的 X 軸文字添加突出樣式
+                let labelClasses = 'w-1/4 px-1 md:px-2';
+                if (index === 0) {
+                    labelClasses += ' font-extrabold text-primary-green'; // 加粗和金鍏綠色
+                }
+                labelDiv.className = labelClasses;
                 labelDiv.textContent = data.name; 
                 labelDiv.title = data.name; 
                 chartLabels.appendChild(labelDiv);
