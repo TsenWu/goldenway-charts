@@ -19,7 +19,6 @@
                         'cost-initial': '#6B8F71',  
                         'cost-electricity': '#EDAE49',
                         'cost-repair': '#D1495B',   
-                        // 新增一個用於金鍏燈邊框的黃色
                         'goldwell-border-yellow': '#FACC15', // Tailwind 的 yellow-400
                     }
                 }
@@ -81,6 +80,13 @@
         .y-axis-labels > div:nth-child(2) { top: calc(100% * (1 - 4333/6350)); }
         .y-axis-labels > div:last-child { bottom: 0; } 
 
+        /* 新增樣式：確保 X 軸標籤容器能容納兩行文字 */
+        .x-label-item {
+            display: flex;
+            flex-direction: column; /* 垂直排列 */
+            align-items: center; /* 居中對齊 */
+        }
+
     </style>
 </head>
 <body>
@@ -106,11 +112,16 @@
     </div>
 
     <script>
+        // 產品數據 - 新增 wattage 屬性
         const productData = [
-            { name: "金鍏LED平板燈", color: 'bg-primary-green', initial: 1400, electricity: 1575, repair: 0, hoverColor: 'hover:bg-green-700' },
-            { name: "市售LED平板燈", color: 'bg-secondary-blue', initial: 500, electricity: 3000, repair: 750, hoverColor: 'hover:bg-blue-700' },
-            { name: "格柵燈(LED T8燈管*4)", color: 'bg-light-yellow', initial: 750, electricity: 3225, repair: 800, hoverColor: 'hover:bg-yellow-600' }, 
-            { name: "格柵燈(T5螢光燈管*4)", color: 'bg-light-red', initial: 750, electricity: 4800, repair: 800, hoverColor: 'hover:bg-red-700' }, 
+            // 名稱修正為: 金鍏LED平板燈 (21W)
+            { name: "金鍏LED平板燈", wattage: 21, color: 'bg-primary-green', initial: 1400, electricity: 1575, repair: 0, hoverColor: 'hover:bg-green-700' },
+            // 名稱修正為: 市售LED平板燈 (40W)
+            { name: "市售LED平板燈", wattage: 40, color: 'bg-secondary-blue', initial: 500, electricity: 3000, repair: 750, hoverColor: 'hover:bg-blue-700' },
+            // 名稱修正為: 格柵燈(LED T8燈管*4) (43W)
+            { name: "格柵燈(LED T8燈管*4)", wattage: 43, color: 'bg-light-yellow', initial: 750, electricity: 3225, repair: 800, hoverColor: 'hover:bg-yellow-600' }, 
+            // 名稱修正為: 格柵燈(T5螢光燈管*4) (64W)
+            { name: "格柵燈(T5螢光燈管*4)", wattage: 64, color: 'bg-light-red', initial: 750, electricity: 4800, repair: 800, hoverColor: 'hover:bg-red-700' }, 
         ];
 
         const chartBars = document.getElementById('chart-bars');
@@ -128,7 +139,7 @@
                 const heightPercentage = (totalCost / maxCost) * 100;
                 
                 const barDiv = document.createElement('div');
-                // 修正：金鍏LED平板燈堆疊柱狀圖的邊框顏色改為黃色
+                // 金鍏LED平板燈邊框顏色改為黃色
                 const borderColorClass = index === 0 ? 'border-2 border-goldwell-border-yellow/70 ring-2 ring-goldwell-border-yellow/50' : '';
                 
                 barDiv.className = `bar w-1/4 h-0 mx-1 md:mx-2 flex flex-col justify-end items-center rounded-t-lg ${data.color} relative group shadow-lg ${borderColorClass}`;
@@ -172,16 +183,31 @@
                 
                 chartBars.appendChild(barDiv);
 
-                const labelDiv = document.createElement('div');
-                // 修正：為金鍏LED平板燈的 X 軸文字添加突出樣式
-                let labelClasses = 'w-1/4 px-1 md:px-2';
+                // --- X 軸標籤與瓦數顯示邏輯 ---
+                const labelContainer = document.createElement('div');
+                labelContainer.className = 'w-1/4 px-1 md:px-2 x-label-item'; // 使用 flex-direction: column 樣式
+
+                // 1. 產品名稱 (第一行)
+                const nameDiv = document.createElement('div');
+                let nameClasses = 'text-center';
                 if (index === 0) {
-                    labelClasses += ' font-extrabold text-primary-green'; // 加粗和金鍏綠色
+                    nameClasses += ' font-extrabold text-primary-green'; // 突出金鍏名稱
                 }
-                labelDiv.className = labelClasses;
-                labelDiv.textContent = data.name; 
-                labelDiv.title = data.name; 
-                chartLabels.appendChild(labelDiv);
+                nameDiv.className = nameClasses;
+                nameDiv.textContent = data.name; 
+                nameDiv.title = data.name; // 完整名稱作為提示
+
+                // 2. 瓦數 (第二行)
+                const wattageDiv = document.createElement('div');
+                // 讓瓦數文字更小且顏色稍淺
+                wattageDiv.className = 'text-center text-xs text-gray-500 font-medium mt-0.5'; 
+                wattageDiv.textContent = `${data.wattage}W`;
+                
+                // 組合
+                labelContainer.appendChild(nameDiv);
+                labelContainer.appendChild(wattageDiv);
+                
+                chartLabels.appendChild(labelContainer);
             });
         }
 
