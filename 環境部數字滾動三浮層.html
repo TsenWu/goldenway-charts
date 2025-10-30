@@ -1,34 +1,55 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>節能數據浮層動畫</title>
+<div style="font-family:'Noto Sans TC', sans-serif; margin: 0 auto; max-width: 1200px; padding: 24px;">
+  <div class="env-card-container">
+    <!-- 卡片：電量 -->
+    <div class="env-card hover-electric">
+      <div class="label">七年節約 <span class="electric-color">耗電量</span>（總計）</div>
+      <div>
+        <span class="number electric-color" id="electric-count">0</span>
+        <span class="unit electric-color">度</span>
+      </div>
+      <div class="desc">省下高達 <b>1,164 萬</b><span class="red">電費</span></div>
+    </div>
+
+    <!-- 卡片：油當量 -->
+    <div class="env-card hover-oil">
+      <div class="label">七年節約 <span class="oil-color">油當量</span>（總計）</div>
+      <div>
+        <span class="number oil-color" id="oil-count">0</span>
+        <span class="unit oil-color">Kloe</span>
+      </div>
+      <div class="desc">約當於 292,620 公升 汽油當量</div>
+    </div>
+
+    <!-- 卡片：碳排放 -->
+    <div class="env-card hover-co2">
+      <div class="label">七年節約 <span class="co2-color">碳排放</span>（總計）</div>
+      <div>
+        <span class="number co2-color" id="co2-count">0</span>
+        <span class="unit co2-color">噸</span>
+      </div>
+      <div class="desc">相當於數萬棵樹的 年吸收量</div>
+    </div>
+  </div>
+
+  <!-- CSS -->
   <style>
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      background-color: #fff;
-      margin: 0;
-      padding: 40px;
-      display: flex;
-      justify-content: center;
-    }
-    .container {
+    .env-card-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 32px;
       justify-content: center;
+      gap: 24px;
     }
 
-    /* ====== 共用浮層樣式 ====== */
-    .card {
-      width: 320px;
-      padding: 24px 28px;
+    .env-card {
+      flex: 1 1 280px;                  /* ✅ 縮窄卡片，避免超寬 */
+      max-width: 300px;
+      padding: 24px 20px;
       border-radius: 16px;
       box-shadow: 0 6px 20px rgba(0,0,0,0.08);
       transition: all 0.3s ease;
       border: 2px solid transparent;
       cursor: pointer;
+      background: #fff;
     }
 
     .label {
@@ -58,29 +79,28 @@
     }
 
     .desc b {
-      font-size: 22px;            /* ✅ 特別放大 1,164 萬 */
+      font-size: 22px;
       color: #b12220;
       font-weight: bold;
     }
 
     .desc .red {
-      font-size: 18px;            /* 電費維持紅色正常大小 */
+      font-size: 18px;
       color: #b12220;
       font-weight: bold;
       margin-left: 4px;
     }
 
-    /* ====== 色彩定義 ====== */
+    /* 色彩區分 */
     .electric-color { color: #283f7c; }
     .oil-color     { color: #d28445; }
     .co2-color     { color: #2a9d8f; }
 
-    /* ====== 浮層樣式（含 hover 效果） ====== */
+    /* Hover 效果 */
     .hover-electric {
       border-color: #283f7c;
       background-color: rgba(136,190,251,0.06);
     }
-
     .hover-electric:hover {
       background-color: rgba(136,190,251,0.30);
       transform: translateY(-4px);
@@ -90,7 +110,6 @@
       border-color: #d28445;
       background-color: rgba(210,132,69,0.06);
     }
-
     .hover-oil:hover {
       background-color: rgba(210,132,69,0.15);
       transform: translateY(-4px);
@@ -100,54 +119,26 @@
       border-color: #2a9d8f;
       background-color: rgba(42,157,143,0.06);
     }
-
     .hover-co2:hover {
       background-color: rgba(42,157,143,0.20);
       transform: translateY(-4px);
     }
+
+    /* 手機版：上下堆疊 */
+    @media (max-width: 768px) {
+      .env-card-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .env-card {
+        width: 100%;
+        max-width: 360px;
+      }
+    }
   </style>
-</head>
 
-<body>
-  <div class="container">
-    <!-- 卡片：節約電量 -->
-    <div class="card hover-electric">
-      <div class="label">
-        七年節約 <span class="electric-color">耗電量</span>（總計）
-      </div>
-      <div>
-        <span class="number electric-color" id="electric-count">0</span>
-        <span class="unit electric-color">度</span>
-      </div>
-      <div class="desc">省下高達 <b>1,164 萬</b><span class="red">電費</span></div>
-    </div>
-
-    <!-- 卡片：油當量 -->
-    <div class="card hover-oil">
-      <div class="label">
-        七年節約 <span class="oil-color">油當量</span>（總計）
-      </div>
-      <div>
-        <span class="number oil-color" id="oil-count">0</span>
-        <span class="unit oil-color">Kloe</span>
-      </div>
-      <div class="desc">約當於 292,620 公升 汽油當量</div>
-    </div>
-
-    <!-- 卡片：碳排放 -->
-    <div class="card hover-co2">
-      <div class="label">
-        七年節約 <span class="co2-color">碳排放</span>（總計）
-      </div>
-      <div>
-        <span class="number co2-color" id="co2-count">0</span>
-        <span class="unit co2-color">噸</span>
-      </div>
-      <div class="desc">相當於數萬棵樹的 年吸收量</div>
-    </div>
-  </div>
-
-  <!-- 數字動畫效果 -->
+  <!-- 數字動畫 JS -->
   <script>
     function animateCount(id, end, duration) {
       const el = document.getElementById(id);
@@ -186,5 +177,4 @@
       animateCount("co2-count", 1560.06, 2500);
     });
   </script>
-</body>
-</html>
+</div>
