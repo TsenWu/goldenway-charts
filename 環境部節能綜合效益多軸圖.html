@@ -18,6 +18,8 @@
       align-items: center;
       min-height: 100vh;
     }
+
+    /* === 圖表容器 === */
     .chart-container {
       background: #fff;
       border-radius: 16px;
@@ -25,8 +27,7 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
       width: 100%;
       max-width: 1200px;
-      height: 700px;
-      transition: all 0.3s ease;
+      aspect-ratio: 16 / 9; /* ✅ 高度自動依比例縮放 */
     }
 
     /* === 手機版優化 === */
@@ -35,12 +36,9 @@
         padding: 10px;
       }
       .chart-container {
-        height: 480px; /* ↓ 手機版高度縮小 */
+        aspect-ratio: 4 / 3; /* ✅ 手機比例稍高，讓字不擠 */
         padding: 12px 16px;
         border-radius: 10px;
-      }
-      canvas {
-        font-size: 10px !important;
       }
     }
   </style>
@@ -111,7 +109,7 @@
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false,
+          maintainAspectRatio: true, /* ✅ 讓比例依容器 aspect-ratio 自動維持 */
           plugins: {
             legend: {
               position: 'top',
