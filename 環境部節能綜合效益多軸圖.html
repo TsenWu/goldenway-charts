@@ -22,7 +22,7 @@
     .chart-container {
       background: #fff;
       border-radius: 16px;
-      padding: 20px 30px 20px 30px;
+      padding: 20px 30px 16px 30px; /* ✅ 壓縮底部 padding */
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
       width: 100%;
       max-width: 1200px;
@@ -118,7 +118,7 @@
           maintainAspectRatio: false,
           layout: {
             padding: {
-              bottom: 20
+              bottom: 10 // ✅ 再壓縮底部空間
             }
           },
           plugins: {
@@ -141,7 +141,8 @@
           },
           scales: {
             x: {
-              title: { display: true, text: '年度', font: { weight: 'bold', size: 13 } },
+              // ❌ 移除 x 軸 title，保留標籤
+              title: { display: false },
               ticks: { maxRotation: 45, minRotation: 45 },
               grid: { display: false }
             },
