@@ -1,53 +1,44 @@
+<!-- ✅ 範本：已壓縮底部 padding，防止 x 軸標籤被裁切 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LED 節能成效多軸互動圖表</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-
     body {
       font-family: 'Inter', 'Noto Sans TC', sans-serif;
       background-color: #f7faf9;
       margin: 0;
-      padding: 20px;
+      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh; /* 滿版畫面，避免內部捲動 */
     }
 
-    /* ✅ 改：固定高度（避免畫面太高 + 產生捲動條） */
     .chart-container {
       background: #fff;
       border-radius: 16px;
-      padding: 20px 30px;
+      padding: 20px 30px 10px 30px; /* ✅ 底部 padding 往上壓縮 */
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
       width: 100%;
       max-width: 1200px;
-      height: 360px;       /* ✅ 桌機高度（你可微調） */
+      height: 100%; /* ✅ 高度固定為100%，由 iframe 決定 */
+      box-sizing: border-box;
     }
 
-    /* ✅ 手機版更扁一點 */
     @media (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
       .chart-container {
-        height: 280px;     /* ✅ 手機高度 */
-        padding: 12px 16px;
-        border-radius: 10px;
+        padding: 12px 16px 6px 16px;
+        border-radius: 12px;
       }
     }
-
   </style>
 </head>
-
 <body>
   <div class="chart-container">
     <canvas id="combinedChart"></canvas>
@@ -114,14 +105,19 @@
         },
         options: {
           responsive: true,
-
-          /* ✅ 讓高度由 CSS 控制（非常重要） */
-          maintainAspectRatio: false,
-
+          maintainAspectRatio: false, // ✅ 改為由外層高度控制
+          layout: {
+            padding: {
+              bottom: 20 // ✅ 手動增加底部留白，避免 label 被裁切
+            }
+          },
           plugins: {
             legend: {
               position: 'top',
-              labels: { font: { size: 13 }, boxWidth: 20 }
+              labels: {
+                font: { size: 13 },
+                boxWidth: 20
+              }
             },
             tooltip: {
               backgroundColor: 'rgba(10,25,41,0.9)',
@@ -133,7 +129,6 @@
               intersect: false
             }
           },
-
           scales: {
             x: {
               title: { display: true, text: '年度', font: { weight: 'bold', size: 13 } },
