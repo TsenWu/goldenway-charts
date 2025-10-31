@@ -73,45 +73,45 @@
         type: 'bar',
         data: {
           labels: years,
-          datasets: [
-            {
-              label: '節約耗電量 (kWh/年)',
-              data: electricitySaved,
-              backgroundColor: COLORS.electricity.background,
-              borderColor: COLORS.electricity.border,
-              borderWidth: 1,
-              yAxisID: 'y-electricity',
-              order: 2
-            },
-            {
-              label: '節約CO₂排放量 (噸/年)',
-              data: co2EmissionsSaved,
-              borderColor: COLORS.co2.border,
-              backgroundColor: COLORS.co2.background,
-              pointBackgroundColor: COLORS.co2.border,
-              type: 'line',
-              yAxisID: 'y-co2',
-              tension: 0.4,
-              fill: false,
-              pointRadius: 5,
-              pointHoverRadius: 7,
-              order: 1
-            },
-            {
-              label: '節約耗能油當量 (Kloe/年)',
-              data: oilEquivalentSaved,
-              borderColor: COLORS.oil.border,
-              backgroundColor: COLORS.oil.background,
-              pointBackgroundColor: COLORS.oil.border,
-              type: 'line',
-              yAxisID: 'y-oil',
-              tension: 0.4,
-              fill: false,
-              pointRadius: 5,
-              pointHoverRadius: 7,
-              order: 1
-            }
-          ]
+datasets: [
+  {
+    label: '節約耗電量 (kWh/年)',   // ✅ 藍色：移到第一個
+    data: electricitySaved,
+    backgroundColor: COLORS.electricity.background,
+    borderColor: COLORS.electricity.border,
+    borderWidth: 1,
+    yAxisID: 'y-electricity',
+    order: 2
+  },
+  {
+    label: '節約耗能油當量 (Kloe/年)', // ✅ 橘色：維持中間
+    data: oilEquivalentSaved,
+    borderColor: COLORS.oil.border,
+    backgroundColor: COLORS.oil.background,
+    pointBackgroundColor: COLORS.oil.border,
+    type: 'line',
+    yAxisID: 'y-oil',
+    tension: 0.4,
+    fill: false,
+    pointRadius: 5,
+    pointHoverRadius: 7,
+    order: 1
+  },
+  {
+    label: '節約CO₂排放量 (噸/年)', // ✅ 綠色：移到最後
+    data: co2EmissionsSaved,
+    borderColor: COLORS.co2.border,
+    backgroundColor: COLORS.co2.background,
+    pointBackgroundColor: COLORS.co2.border,
+    type: 'line',
+    yAxisID: 'y-co2',
+    tension: 0.4,
+    fill: false,
+    pointRadius: 5,
+    pointHoverRadius: 7,
+    order: 1
+  }
+]
         },
         options: {
           responsive: true,
@@ -192,3 +192,4 @@
   </script>
 </body>
 </html>
+
