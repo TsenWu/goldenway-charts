@@ -14,15 +14,21 @@
       justify-content: center;
     }
 
+    /* ✅ 外層容器：限制最大寬度 */
+    .wrapper {
+      max-width: 840px;         /* ✅ 寬度限制：避免橫向超出（可調整） */
+      width: 100%;
+    }
+
     .container {
       display: flex;
       flex-wrap: wrap;
-      gap: 32px;
+      gap: 16px;                 /* ✅ 控制卡片間距（左右 + 上下） */
       justify-content: center;
     }
 
     /* ✅ 響應式：手機版上下堆疊 */
-    @media (max-width: 768px) {
+    @media (max-width: 820px) {  /* ✅ 當螢幕小於此寬度，進入堆疊模式 */
       .container {
         flex-direction: column;
         align-items: center;
@@ -121,46 +127,48 @@
 </head>
 
 <body>
-  <div class="container">
-    <!-- 電量卡 -->
-    <div class="card hover-electric">
-      <div class="label">
-        七年節約 <span class="electric-color">耗電量</span>（總計）
+  <div class="wrapper">
+    <div class="container">
+      <!-- 電量卡 -->
+      <div class="card hover-electric">
+        <div class="label">
+          七年節約 <span class="electric-color">耗電量</span>（總計）
+        </div>
+        <div>
+          <span class="number electric-color" id="electric-count">0</span>
+          <span class="unit electric-color">度</span>
+        </div>
+        <div class="desc">
+          省下高達 <b>1,164 萬</b><span class="red">電費</span>
+        </div>
       </div>
-      <div>
-        <span class="number electric-color" id="electric-count">0</span>
-        <span class="unit electric-color">度</span>
-      </div>
-      <div class="desc">
-        省下高達 <b>1,164 萬</b><span class="red">電費</span>
-      </div>
-    </div>
 
-    <!-- 油當量卡 -->
-    <div class="card hover-oil">
-      <div class="label">
-        七年節約 <span class="oil-color">油當量</span>（總計）
+      <!-- 油當量卡 -->
+      <div class="card hover-oil">
+        <div class="label">
+          七年節約 <span class="oil-color">油當量</span>（總計）
+        </div>
+        <div>
+          <span class="number oil-color" id="oil-count">0</span>
+          <span class="unit oil-color">Kloe</span>
+        </div>
+        <div class="desc">
+          約當於 292,620 公升 汽油當量
+        </div>
       </div>
-      <div>
-        <span class="number oil-color" id="oil-count">0</span>
-        <span class="unit oil-color">Kloe</span>
-      </div>
-      <div class="desc">
-        約當於 292,620 公升 汽油當量
-      </div>
-    </div>
 
-    <!-- 碳排卡 -->
-    <div class="card hover-co2">
-      <div class="label">
-        七年節約 <span class="co2-color">碳排放</span>（總計）
-      </div>
-      <div>
-        <span class="number co2-color" id="co2-count">0</span>
-        <span class="unit co2-color">噸</span>
-      </div>
-      <div class="desc">
-        相當於數萬棵樹的 年吸收量
+      <!-- 碳排卡 -->
+      <div class="card hover-co2">
+        <div class="label">
+          七年節約 <span class="co2-color">碳排放</span>（總計）
+        </div>
+        <div>
+          <span class="number co2-color" id="co2-count">0</span>
+          <span class="unit co2-color">噸</span>
+        </div>
+        <div class="desc">
+          相當於數萬棵樹的 年吸收量
+        </div>
       </div>
     </div>
   </div>
@@ -206,5 +214,3 @@
   </script>
 </body>
 </html>
-
-
