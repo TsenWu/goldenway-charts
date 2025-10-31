@@ -6,8 +6,10 @@
   <title>LED 節能成效多軸互動圖表</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
     body {
       font-family: 'Inter', 'Noto Sans TC', sans-serif;
       background-color: #f7faf9;
@@ -22,7 +24,7 @@
     .chart-container {
       background: #fff;
       border-radius: 16px;
-      padding: 20px 30px 16px 30px; /* ✅ 壓縮底部 padding */
+      padding: 20px 30px 16px 30px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
       width: 100%;
       max-width: 1200px;
@@ -49,6 +51,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="chart-container">
     <canvas id="combinedChart"></canvas>
@@ -56,6 +59,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+
       const years = ['108年度', '109年度', '110年度', '111年度', '112年度', '113年度', '114年度'];
       const electricitySaved = [440264, 445118, 433235, 436012, 434758, 435498, 437099];
       const oilEquivalentSaved = [42.08, 42.53, 41.4, 41.67, 41.55, 41.62, 41.77];
@@ -73,66 +77,71 @@
         type: 'bar',
         data: {
           labels: years,
-datasets: [
-  {
-    label: '節約耗電量 (kWh/年)',   // ✅ 藍色：移到第一個
-    data: electricitySaved,
-    backgroundColor: COLORS.electricity.background,
-    borderColor: COLORS.electricity.border,
-    borderWidth: 1,
-    yAxisID: 'y-electricity',
-    order: 1
-  },
-  {
-    label: '節約耗能油當量 (Kloe/年)', // ✅ 橘色：維持中間
-    data: oilEquivalentSaved,
-    borderColor: COLORS.oil.border,
-    backgroundColor: COLORS.oil.background,
-    pointBackgroundColor: COLORS.oil.border,
-    type: 'line',
-    yAxisID: 'y-oil',
-    tension: 0.4,
-    fill: false,
-    pointRadius: 5,
-    pointHoverRadius: 7,
-    order: 2
-      segment: {
-    z: 100  // ✅ 加上這行！
-  },
-  {
-    label: '節約CO₂排放量 (噸/年)', // ✅ 綠色：移到最後
-    data: co2EmissionsSaved,
-    borderColor: COLORS.co2.border,
-    backgroundColor: COLORS.co2.background,
-    pointBackgroundColor: COLORS.co2.border,
-    type: 'line',
-    yAxisID: 'y-co2',
-    tension: 0.4,
-    fill: false,
-    pointRadius: 5,
-    pointHoverRadius: 7,
-    order: 3
-      segment: {
-    z: 100  // ✅ 加上這行！
-  }
-]
+          datasets: [
+
+            /* ✅ 1. 藍色（移到第一個） */
+            {
+              label: '節約耗電量 (kWh/年)',
+              data: electricitySaved,
+              backgroundColor: COLORS.electricity.background,
+              borderColor: COLORS.electricity.border,
+              borderWidth: 1,
+              yAxisID: 'y-electricity',
+              order: 1
+            },
+
+            /* ✅ 2. 橘色（保持中間） */
+            {
+              label: '節約耗能油當量 (Kloe/年)',
+              data: oilEquivalentSaved,
+              borderColor: COLORS.oil.border,
+              backgroundColor: COLORS.oil.background,
+              pointBackgroundColor: COLORS.oil.border,
+              type: 'line',
+              yAxisID: 'y-oil',
+              tension: 0.4,
+              fill: false,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              order: 2,
+              segment: { z: 100 }
+            },
+
+            /* ✅ 3. 綠色（移到最後） */
+            {
+              label: '節約CO₂排放量 (噸/年)',
+              data: co2EmissionsSaved,
+              borderColor: COLORS.co2.border,
+              backgroundColor: COLORS.co2.background,
+              pointBackgroundColor: COLORS.co2.border,
+              type: 'line',
+              yAxisID: 'y-co2',
+              tension: 0.4,
+              fill: false,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              order: 3,
+              segment: { z: 100 }
+            }
+          ]
         },
+
         options: {
           responsive: true,
           maintainAspectRatio: false,
+
           layout: {
             padding: {
-              bottom: 10 // ✅ 再壓縮底部空間
+              bottom: 10
             }
           },
+
           plugins: {
             legend: {
               position: 'top',
-              labels: {
-                font: { size: 13 },
-                boxWidth: 20
-              }
+              labels: { font: { size: 13 }, boxWidth: 20 }
             },
+
             tooltip: {
               backgroundColor: 'rgba(10,25,41,0.9)',
               titleFont: { size: 13, weight: 'bold' },
@@ -143,13 +152,14 @@ datasets: [
               intersect: false
             }
           },
+
           scales: {
             x: {
-              // ❌ 移除 x 軸 title，保留標籤
               title: { display: false },
               ticks: { maxRotation: 45, minRotation: 45 },
               grid: { display: false }
             },
+
             'y-electricity': {
               type: 'linear',
               position: 'left',
@@ -163,6 +173,7 @@ datasets: [
               grid: { drawOnChartArea: false },
               ticks: { color: COLORS.electricity.border, font: { size: 11 } }
             },
+
             'y-co2': {
               type: 'linear',
               position: 'right',
@@ -175,6 +186,7 @@ datasets: [
               grid: { drawOnChartArea: false },
               ticks: { color: COLORS.co2.border, font: { size: 11 } }
             },
+
             'y-oil': {
               type: 'linear',
               position: 'right',
@@ -192,10 +204,8 @@ datasets: [
           }
         }
       });
+
     });
   </script>
 </body>
 </html>
-
-
-
