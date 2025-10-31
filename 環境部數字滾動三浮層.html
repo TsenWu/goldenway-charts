@@ -16,15 +16,18 @@
 
     /* ✅ 外層容器：限制最大寬度 */
     .wrapper {
-      max-width: 840px;         /* ✅ 寬度限制：避免橫向超出（可調整） */
+      max-width: 1000px;         /* ✅ 寬度限制：避免橫向超出（可調整） */
       width: 100%;
     }
 
     .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;                 /* ✅ 控制卡片間距（左右 + 上下） */
-      justify-content: center;
+          display: flex;
+          justify-content: center;
+          gap: 16px;
+          flex-wrap: nowrap;        /* 🔥 關鍵設定：禁止卡片自動換行 */
+          overflow: hidden;         /* 🔥 不讓它產生橫向捲軸 */
+          max-width: 100%;          /* 確保不超過父層容器 */
+          box-sizing: border-box;
     }
 
     /* ✅ 響應式：手機版上下堆疊 */
@@ -214,3 +217,4 @@
   </script>
 </body>
 </html>
+
