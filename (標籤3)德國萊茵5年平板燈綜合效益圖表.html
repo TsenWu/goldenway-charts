@@ -32,7 +32,7 @@
         
         <!-- 頂部標題與橫線 -->
         <header class="text-center mb-6">
-            <!-- 關鍵修正: 將橫線樣式移到 h1 標籤，使其成為粗線 (border-b-4) -->
+            <!-- 應用粗實線：border-b-4 border-gray-300，並調整間距 -->
             <h1 class="text-3xl font-extrabold text-gray-800 mb-1 pb-3 border-b-4 border-gray-300">
                 德國萊茵(林口) 使用金鋒平板燈 五年服役期成果報告
             </h1>
@@ -66,15 +66,18 @@
         </div>
         
         <!-- 核心內容區塊：圖片 (左) + 結論 (右) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <!-- 關鍵修正: 將 items-start 改為 items-center 實現垂直置中 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             
             <!-- 左側：圖片佔位 (廣泛應用尺寸) -->
-            <div class="shadow-xl rounded-xl overflow-hidden">
-                <!-- 預留圖片空間，請將 src 替換為您的 TUV 辦公室圖片 URL -->
+            <div class="shadow-xl rounded-xl overflow-hidden bg-white"> 
+                <!-- 圖片 URL 已被替換為穩定的 CDN 連結 -->
                 <img 
-                    src="https://placehold.co/800x500/A0A0A0/ffffff?text=TUV+Rheinland+%E5%8A%9E%E5%85%AC%E5%AE%A4%E7%85%A7%E7%89%87" 
+                    src="https://raw.githubusercontent.com/TsenWu/goldenway-photos/main/%E5%BE%B7%E5%9C%8B%E8%90%8A%E8%8C%B5%E7%85%A7%E7%89%87%E6%8B%BC%E8%B2%BC.jpg" 
                     alt="TUV Rheinland 辦公室實景" 
                     class="w-full h-auto object-cover"
+                    style="min-height: 350px; background-color: white;"
+                    onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\'flex items-center justify-center text-center text-gray-500 h-full p-6\' style=\'min-height: 350px;\'>[圖片載入失敗，請檢查連結：TUV Rheinland 辦公室實景]</div>'"
                 >
             </div>
 
