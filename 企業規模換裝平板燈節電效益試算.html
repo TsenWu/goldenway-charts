@@ -42,8 +42,12 @@
     .result-box { background-color: #0f172a; border-radius: 16px; padding: 32px; text-align: center; position: relative; overflow: hidden; color: #fff; margin-bottom: 24px; }
     .result-content { position: relative; z-index: 10; }
     .result-subtitle { color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; font-weight: 600; margin: 0 0 8px 0; }
-    .result-amount { font-size: 48px; font-weight: 900; color: #fff; margin-bottom: 8px; line-height: 1.1; }
-    .result-formula { color: #34d399; font-weight: 500; margin: 0; font-size: 16px; }
+    .result-amount { font-size: 48px; font-weight: 900; color: #fff; margin-bottom: 16px; line-height: 1.1; }
+    
+    /* 新增樣式：修正後的綠色說明文字 */
+    .result-desc-green { color: #34d399; font-weight: 500; font-size: 18px; margin: 0 0 8px 0; }
+    .result-desc-small { color: #64748b; font-size: 13px; margin: 0; opacity: 0.8; }
+    
     .bg-shimmer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent); z-index: 1; }
 
     /* 7. 採購建議 */
@@ -69,7 +73,7 @@
         <svg class="icon-calc" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
         企業規模效益試算
       </h2>
-      <p class="header-desc">拖動下方滑桿，看看您的辦公室能省多少？</p>
+      <p class="header-desc">拖曳下方滑桿，我們幫您計算換裝節能燈具 5年可以省下多少電費</p>
     </div>
 
     <div class="card-body">
@@ -87,9 +91,15 @@
 
       <div class="result-box">
         <div class="result-content">
-          <p class="result-subtitle">5 年累積省下的電費總額</p>
-          <div class="result-amount">$<span id="gw-total-savings">56,250</span></div>
-          <p class="result-formula">( $1,125 省額 × <span id="gw-qty-text">50</span> 盞 )</p>
+          <p class="result-subtitle">估算 5年 累積省下的電費總額可達</p>
+          <div class="result-amount">NTD <span id="gw-total-savings">56,250</span></div>
+          
+          <p class="result-desc-green">
+             單盞 5 年省 $1,125 × <span id="gw-qty-text">50</span> 盞
+          </p>
+          <p class="result-desc-small">
+             ( 計算基準：年用 3,000 小時 × $5/度 × 5 年 )
+          </p>
         </div>
         <div class="bg-shimmer"></div>
       </div>
@@ -99,7 +109,7 @@
         <div class="suggestion-text">
           <h4 class="sug-title">採購建議</h4>
           <p class="sug-desc">
-            若您更換 <span id="gw-qty-sug">50</span> 盞燈，省下的 <strong class="green-text">$<span id="gw-savings-sug">56,250</span></strong> 元電費，通常已經超過了購買這批燈具的成本。這意味著您現在是<span class="highlight-underline">免費升級</span>全新的照明設備。
+            若您更換 <span id="gw-qty-sug">50</span> 盞燈，省下的 <strong class="green-text">NTD <span id="gw-savings-sug">56,250</span></strong> 元電費，通常已經超過了購買這批燈具的成本。這意味著您現在是<span class="highlight-underline">免費升級</span>全新的照明設備。
           </p>
         </div>
       </div>
