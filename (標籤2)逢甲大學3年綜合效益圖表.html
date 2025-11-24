@@ -27,8 +27,8 @@
             border-radius: 8px;
             /* 使用較少的 padding */
             padding: 16px; 
-            /* 移除舊陰影，專注於頂邊框 */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 輕微陰影，增加立體感 */
+            /* 輕微陰影，增加立體感 */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); 
             height: 100%;
         }
         .chart-container {
@@ -43,23 +43,60 @@
     </style>
     <!-- 載入 Chart.js 圖表函式庫 (使用穩定版本 3.7.1) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    
+    <!-- 註冊 Chart.js Annotation Plugin (用於在圖表上繪製文字) -->
+    <script>
+        const annotationPlugin = {
+            id: 'customAnnotation',
+            afterDraw(chart) {
+                // 確保插件只在啟用 annotation 且設定了 text 屬性時執行
+                if (chart.config.options.plugins.annotation && chart.config.options.plugins.annotation.text) {
+                    const ctx = chart.ctx;
+                    const annotation = chart.config.options.plugins.annotation;
+                    
+                    const lastIndex = chart.data.labels.length - 1;
+                    
+                    const meta = chart.getDatasetMeta(0);
+                    const lastPoint = meta.data[lastIndex];
+                    if (!lastPoint) return;
+
+                    // 使用相對位置繪製文字，位於圖表區域內部右上方
+                    const x = chart.chartArea.right;
+                    const y = chart.chartArea.top;
+
+                    ctx.save();
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'top';
+                    ctx.fillStyle = annotation.color || '#000';
+                    ctx.font = annotation.font || 'bold 16px "Inter", sans-serif';
+                    
+                    const text = annotation.text || '';
+                    
+                    // 繪製文字 (略微偏移，讓它在圖表頂部右側)
+                    ctx.fillText(text, x - 5, y + 5);
+                    ctx.restore();
+                }
+            }
+        };
+        Chart.register(annotationPlugin);
+    </script>
 </head>
 <body class="p-4 sm:p-6"> <!-- 減少 body padding 讓頁面更緊湊 -->
 
-    <!-- 關鍵修正：移除 max-w-5xl，讓版面佔滿螢幕寬度（保留 p-4/p-6 邊距） -->
-    <div class="max-w-full mx-auto space-y-4"> 
+    <!-- 關鍵修正：確保版面寬度寬闊，使用 max-w-7xl 讓內容居中並佔據大部分螢幕空間 -->
+    <div class="max-w-7xl mx-auto space-y-4"> 
 
         <!-- 儀表板外框 (整體卡片風格) -->
-        <div class="main-container-style max-w-7xl mx-auto">
+        <div class="main-container-style">
             
             <!-- 標題與橫線區塊 -->
             <header class="text-center mb-4"> <!-- 減少 mb -->
-                <!-- 應用粗實線：border-b-4 border-gray-300，並調整間距 -->
-                <h1 class="text-3xl font-extrabold text-gray-800 mb-1 pb-3 border-b-4 border-gray-300">
+                <!-- 應用粗實線：border-b-4 border-gray-300，符合環境部風格，並放大字體 -->
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 pb-3 mb-2 border-b-4 border-gray-300">
                     逢甲大學 LED 節能成效儀表板 — 累積效益
                 </h1>
                 <!-- 副標題區塊，移除舊的細邊框 -->
-                <p class="text-base text-gray-500">
+                <p class="text-lg text-gray-500">
                     換裝數量：13,020 盞 | 數據統計至 114 年度
                 </p>
             </header>
@@ -69,7 +106,7 @@
                 
                 <!-- 成果 1: 省下電費 (綠色) -->
                 <div class="kpi-card-style bg-green-50 border-t-4 border-green-600">
-                    <p class="text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">三年節省電費總額</p>
+                    <p class="text-base font-medium text-gray-500 mb-1 uppercase tracking-wider">三年節省電費總額</p>
                     <div class="flex items-baseline space-x-0.5"> <!-- 數字與單位緊密相連 -->
                         <span class="text-4xl font-extrabold text-green-700">1,300</span>
                         <span class="text-xl font-bold text-green-700">萬 NTD</span>
@@ -78,16 +115,16 @@
 
                 <!-- 成果 2: 節約碳排 (藍色) -->
                 <div class="kpi-card-style bg-blue-50 border-t-4 border-blue-600">
-                    <p class="text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">三年節約碳排放總量</p>
+                    <p class="text-base font-medium text-gray-500 mb-1 uppercase tracking-wider">三年節約碳排放總量</p>
                     <div class="flex items-baseline space-x-0.5"> <!-- 數字與單位緊密相連 -->
                         <span class="text-4xl font-extrabold text-blue-700">1,755</span>
                         <span class="text-xl font-bold text-blue-700">噸 CO₂e</span>
                     </div>
                 </div>
 
-                <!-- 成果 3: 節能率 (修改為紅色/偏紅，突顯重點) -->
+                <!-- 成果 3: 節能率 (紅色，突顯重點) -->
                 <div class="kpi-card-style bg-red-50 border-t-4 border-red-600">
-                    <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">整體節能率</p>
+                    <p class="text-base font-semibold text-gray-500 mb-1 uppercase tracking-wider">整體節能率</p>
                     <div class="flex items-baseline space-x-0.5"> <!-- 數字與單位緊密相連 -->
                         <span class="text-4xl font-extrabold text-red-700">0.67</span>
                         <span class="text-xl font-bold text-red-700">%</span>
@@ -155,10 +192,10 @@
             annualData.savings[0] + annualData.savings[1] + annualData.savings[2]
         ];
 
-        const totalSaved = cumulativeSavings[cumulativeSavings.length - 1]; // 3,494,815 kWh
+        const totalSavedKWh = Math.round(cumulativeSavings[cumulativeSavings.length - 1]); // 3,494,815 kWh
 
         // 碳排放數據計算 (基於 3,494,815 kWh 總節省量對應 1,755 噸碳排的比例)
-        const carbonFactor = 1755 / totalSaved; 
+        const carbonFactor = 1755 / totalSavedKWh; 
         const annualCarbonReduction = annualData.savings.map(kWh => kWh * carbonFactor);
         
         // 計算累積節約碳排放量
@@ -167,6 +204,7 @@
             annualCarbonReduction[0] + annualCarbonReduction[1],
             annualCarbonReduction[0] + annualCarbonReduction[1] + annualCarbonReduction[2]
         ];
+        const totalCarbonTons = cumulativeCarbon[cumulativeCarbon.length - 1].toFixed(1); // 1755.0 噸
         
         // 1. 累積節省耗電量趨勢 (Area Chart / 線圖)
         function renderCumulativeSavingChart() {
@@ -201,6 +239,12 @@
                                     return '累積節省: ' + context.parsed.y.toLocaleString('en-US') + ' kWh';
                                 }
                             }
+                        },
+                        // 新增 Annotation 配置
+                        annotation: {
+                            text: `累積節省 ${totalSavedKWh.toLocaleString('en-US')} 度電`,
+                            color: 'rgba(16, 185, 129, 1)', // 綠色
+                            font: 'bold 14px "Noto Sans TC", "Inter", sans-serif'
                         }
                     },
                     scales: {
@@ -209,7 +253,10 @@
                             title: { display: true, text: '累積節省量 (kWh)' },
                             ticks: {
                                 callback: function(value) {
-                                    return (value / 1000).toLocaleString('en-US') + 'k';
+                                    // 簡化顯示，例如 1M, 2M
+                                    if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                    if (value >= 1000) return (value / 1000).toFixed(0) + 'k';
+                                    return value;
                                 }
                             }
                         },
@@ -260,6 +307,12 @@
                                     return '累積減碳: ' + context.parsed.y.toFixed(1).toLocaleString('en-US') + ' 噸';
                                 }
                             }
+                        },
+                        // 新增 Annotation 配置
+                        annotation: {
+                            text: `累積減碳 ${totalCarbonTons} 噸`,
+                            color: 'rgba(59, 130, 246, 1)', // 藍色
+                            font: 'bold 14px "Noto Sans TC", "Inter", sans-serif'
                         }
                     },
                     scales: {
