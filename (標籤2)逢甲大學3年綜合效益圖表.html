@@ -32,8 +32,8 @@
             height: 100%;
         }
         .chart-container {
-             /* 縮短圖表高度以符合緊湊需求 */
-            height: 280px; 
+            /* 統一縮短圖表高度以符合緊湊需求 (340px) */
+            height: 340px; 
             width: 100%;
         }
         /* 針對 chart.js 調整 x 軸標籤間距 */
@@ -60,20 +60,21 @@
                     const lastPoint = meta.data[lastIndex];
                     if (!lastPoint) return;
 
-                    // 使用相對位置繪製文字，位於圖表區域內部右上方
-                    const x = chart.chartArea.right;
-                    const y = chart.chartArea.top;
+                    // 修正：改回與中興大學一致的邏輯
+                    const x = lastPoint.x;
+                    const y = lastPoint.y;
 
                     ctx.save();
                     ctx.textAlign = 'right';
-                    ctx.textBaseline = 'top';
+                    // 修正：基準線設為 bottom，讓文字位於座標點上方
+                    ctx.textBaseline = 'bottom';
                     ctx.fillStyle = annotation.color || '#000';
-                    ctx.font = annotation.font || 'bold 16px "Inter", sans-serif';
+                    ctx.font = annotation.font || 'bold 14px "Inter", sans-serif'; // 統一字體大小
                     
                     const text = annotation.text || '';
                     
-                    // 繪製文字 (略微偏移，讓它在圖表頂部右側)
-                    ctx.fillText(text, x - 5, y + 5);
+                    // 修正：y - 10 確保文字在點的上方，不會被線條壓住
+                    ctx.fillText(text, x + 10, y - 10);
                     ctx.restore();
                 }
             }
@@ -91,48 +92,66 @@
             
             <!-- 標題與橫線區塊 -->
             <header class="text-center mb-4"> <!-- 減少 mb -->
-                <!-- 應用粗實線：border-b-4 border-gray-300，符合環境部風格，並放大字體 -->
-                <h1 class="text-3xl font-extrabold text-gray-900 mb-2 border-b-4 border-gray-300 pb-2 text-center">
+                <!-- 修正: 統一標題大小為 text-2xl -->
+                <h1 class="text-2xl font-extrabold text-gray-900 mb-2 border-b-4 border-gray-300 pb-2 text-center">
                     逢甲大學 LED 節能成效儀表板 — 累積效益
                 </h1>
-                <!-- 副標題區塊，移除舊的細邊框 -->
-                <p class="text-lg text-gray-500">
+                <!-- 副標題區塊 -->
+                <p class="text-lg text-gray-600 mt-2">
                     換裝數量：13,020 盞 (光板燈/平板燈/支架燈) | 數據統計期間：111-113 年度 (3年) 持續量測中
                 </p>
             </header>
 
-            <!-- 關鍵財務、環保與性能效益 (三欄 KPI 卡片區) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"> <!-- 減少 mb -->
+            <!-- 關鍵財務、環保與性能效益 (四欄 KPI 卡片區) -->
+            <!-- 修正: 調整為 md:grid-cols-4 佈局，納入可靠度卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6"> <!-- 減少 mb -->
                 
                 <!-- 成果 1: 省下電費 (綠色) -->
                 <div class="kpi-card-style bg-green-50 border-t-4 border-green-600">
-                    <p class="text-base font-medium text-gray-500 mb-1 uppercase tracking-wider">三年節省電費總額</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">三年節省電費總額</p>
                     <div class="flex items-baseline space-x-0.5"> <!-- 數字與單位緊密相連 -->
-                        <span class="text-4xl font-extrabold text-green-700">1,300</span>
-                        <span class="text-xl font-bold text-green-700">萬 NTD</span>
+                        <!-- 修正: 數字縮小至 text-3xl -->
+                        <span class="text-3xl font-extrabold text-green-700">1,300</span>
+                        <span class="text-lg font-bold text-green-700">萬 NTD</span>
                     </div>
                 </div>
 
                 <!-- 成果 2: 節約碳排 (藍色) -->
                 <div class="kpi-card-style bg-blue-50 border-t-4 border-blue-600">
-                    <p class="text-base font-medium text-gray-500 mb-1 uppercase tracking-wider">三年節約碳排放總量</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">三年節約碳排放總量</p>
                     <div class="flex items-baseline space-x-0.5"> <!-- 數字與單位緊密相連 -->
-                        <span class="text-4xl font-extrabold text-blue-700">1,755</span>
-                        <span class="text-xl font-bold text-blue-700">噸 CO₂e</span>
+                         <!-- 修正: 數字縮小至 text-3xl -->
+                        <span class="text-3xl font-extrabold text-blue-700">1,755</span>
+                        <span class="text-lg font-bold text-blue-700">噸 CO₂e</span>
                     </div>
                 </div>
 
-                <!-- 成果 3: 節能率 (紅色，突顯重點) -->
+                <!-- 成果 3: 可靠度表現 (新增 - 紅色) -->
                 <div class="kpi-card-style bg-red-50 border-t-4 border-red-600">
-                    <p class="text-base font-semibold text-gray-500 mb-1 uppercase tracking-wider">整體節能率</p>
+                    <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">可靠度表現 (111-113)</p>
+                    <div class="flex items-baseline space-x-0.5"> 
+                         <!-- 修正: 數字縮小至 text-3xl -->
+                        <span class="text-3xl font-extrabold text-red-700">0</span>
+                        <span class="text-lg font-bold text-red-700">% 故障率</span>
+                    </div>
+                </div>
+
+                <!-- 成果 4: 節能率 (黃色) -->
+                <div class="kpi-card-style bg-yellow-50 border-t-4 border-yellow-600">
+                    <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">整體節能率</p>
                     <div class="flex items-baseline space-x-0.5"> <!-- 數字與單位緊密相連 -->
-                        <span class="text-4xl font-extrabold text-red-700">0.67</span>
-                        <span class="text-xl font-bold text-red-700">%</span>
+                         <!-- 修正: 數字縮小至 text-3xl -->
+                         <!-- 修正: 數值更正為 67 -->
+                        <span class="text-3xl font-extrabold text-yellow-700">67</span>
+                        <span class="text-lg font-bold text-yellow-700">%</span>
                     </div>
                 </div>
             </div>
 
             <!-- 圖表區塊 (兩欄佈局，高度緊湊) -->
+            <h2 class="text-xl font-bold text-gray-700 mb-3 text-center"> <!-- 統一標題樣式 -->
+                年度節能累積趨勢分析
+            </h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
                 <!-- 圖表 1: 累積節省耗電量趨勢 -->
@@ -163,18 +182,24 @@
                 </h3>
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-1 sm:space-y-0 text-gray-600">
                     <p>
-                        每年縮減：<span class="font-extrabold text-indigo-600">↓ 593,213 度</span> (年用電度數平均)
+                        <span class="font-bold text-indigo-600">每年縮減：</span>
+                        <span class="font-extrabold text-indigo-600">↓ 593,213 度</span> (年用電度數平均)
                     </p>
                     <p>
-                        環保比喻：<span class="font-extrabold text-indigo-600">14 萬棵樹</span> (相當於吸收的碳排放量)
+                        <span class="font-bold text-indigo-600">環保比喻：</span>
+                        <span class="font-extrabold text-indigo-600">14 萬棵樹</span> (相當於吸收的碳排放量)
+                    </p>
+                    <p>
+                        <span class="font-bold text-indigo-600">安裝總數：</span>
+                        <span class="font-bold text-green-600">13,020 盞</span>
                     </p>
                 </div>
             </div>
 
+            <!-- 頁面底部間距 -->
+            <div class="h-4"></div>
+
         </div>
-        
-        <!-- 頁面底部間距 -->
-        <div class="h-4"></div>
 
     </div>
 
@@ -226,6 +251,8 @@
                         pointBorderColor: '#fff',
                         tension: 0.4, 
                         fill: true,
+                        pointRadius: 5, // 統一縮小點的大小
+                        pointHoverRadius: 7,
                     }]
                 },
                 options: {
@@ -236,7 +263,8 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return '累積節省: ' + context.parsed.y.toLocaleString('en-US') + ' kWh';
+                                    // 格式化數字，加上逗號
+                                    return '累積節省: ' + Math.round(context.parsed.y).toLocaleString('en-US') + ' kWh';
                                 }
                             }
                         },
@@ -244,28 +272,28 @@
                         annotation: {
                             text: `累積節省 ${totalSavedKWh.toLocaleString('en-US')} 度電`,
                             color: 'rgba(16, 185, 129, 1)', // 綠色
-                            font: 'bold 14px "Noto Sans TC", "Inter", sans-serif'
+                            font: 'bold 13px "Noto Sans TC", "Inter", sans-serif' // 統一字體大小
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            title: { display: true, text: '累積節省量 (kWh)' },
+                            title: { display: true, text: '累積節省量 (kWh)', font: { size: 12 } }, // 統一縮小標題字體
                             ticks: {
                                 callback: function(value) {
                                     // 簡化顯示，例如 1M, 2M
                                     if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
                                     if (value >= 1000) return (value / 1000).toFixed(0) + 'k';
                                     return value;
-                                }
+                                },
+                                font: { size: 11 } // 統一縮小刻度字體
                             }
                         },
                         x: { 
                             grid: { display: false },
-                            // 修正 x 軸標籤樣式，減少間距
                             ticks: {
                                 padding: 2, 
-                                font: { size: 10 }
+                                font: { size: 11 } // 統一縮小刻度字體
                             }
                         }
                     }
@@ -293,6 +321,8 @@
                         pointBorderColor: '#fff',
                         tension: 0.4, 
                         fill: true,
+                        pointRadius: 5, // 統一縮小點的大小
+                        pointHoverRadius: 7,
                     }]
                 },
                 options: {
@@ -312,25 +342,25 @@
                         annotation: {
                             text: `累積減碳 ${totalCarbonTons} 噸`,
                             color: 'rgba(59, 130, 246, 1)', // 藍色
-                            font: 'bold 14px "Noto Sans TC", "Inter", sans-serif'
+                            font: 'bold 13px "Noto Sans TC", "Inter", sans-serif' // 統一字體大小
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            title: { display: true, text: '累積減碳量 (噸)' },
+                            title: { display: true, text: '累積減碳量 (噸)', font: { size: 12 } }, // 統一縮小標題字體
                             ticks: {
                                 callback: function(value) {
                                     return value.toLocaleString('en-US');
-                                }
+                                },
+                                font: { size: 11 } // 統一縮小刻度字體
                             }
                         },
                         x: { 
                             grid: { display: false },
-                            // 修正 x 軸標籤樣式，減少間距
                             ticks: {
                                 padding: 2, 
-                                font: { size: 10 }
+                                font: { size: 11 } // 統一縮小刻度字體
                             }
                         }
                     }
@@ -348,5 +378,3 @@
 </body>
 
 </html>
-
-
