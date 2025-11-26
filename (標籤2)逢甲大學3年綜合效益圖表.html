@@ -60,21 +60,22 @@
                     const lastPoint = meta.data[lastIndex];
                     if (!lastPoint) return;
 
-                    // 修正：改回與中興大學一致的邏輯
+                    // 修正：改為顯示在線段下方
                     const x = lastPoint.x;
                     const y = lastPoint.y;
 
                     ctx.save();
+                    // 文字右對齊
                     ctx.textAlign = 'right';
-                    // 修正：基準線設為 bottom，讓文字位於座標點上方
-                    ctx.textBaseline = 'bottom';
+                    // 修正：基準線設為 top，讓文字從點的下方開始繪製
+                    ctx.textBaseline = 'top';
                     ctx.fillStyle = annotation.color || '#000';
-                    ctx.font = annotation.font || 'bold 14px "Inter", sans-serif'; // 統一字體大小
+                    ctx.font = annotation.font || 'bold 13px "Noto Sans TC", "Inter", sans-serif'; // 統一字體大小
                     
                     const text = annotation.text || '';
                     
-                    // 修正：y - 10 確保文字在點的上方，不會被線條壓住
-                    ctx.fillText(text, x + 10, y - 10);
+                    // 修正：y + 10 確保文字在點的下方，向下偏移 10 像素
+                    ctx.fillText(text, x + 10, y + 10);
                     ctx.restore();
                 }
             }
