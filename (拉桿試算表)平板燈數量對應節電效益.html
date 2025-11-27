@@ -3,130 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>企業換裝金鍏平板燈 省錢效益試算 (22.5W版)</title>
+  <title>企業規模效益試算 (精簡版)</title>
   <style>
     /* 1. 基礎重置 */
     body { margin: 0; padding: 0; background: transparent; font-family: "Microsoft JhengHei", Arial, sans-serif; }
     
-    /* 2. 容器與卡片 - 移除邊框與陰影，使其更像一張乾淨的畫布，方便嵌入 */
+    /* 2. 容器 */
     .calc-card {
       background-color: #fff;
-      /* 若需要邊框可自行打開下一行 */
-      /* border: 1px solid #f1f5f9; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-radius: 24px; */
+      border-radius: 20px; /* 圓角稍微縮小 */
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      border: 1px solid #f1f5f9;
       overflow: hidden;
-      max-width: 800px;
+      max-width: 100%;
       margin: 0 auto;
-      padding: 10px; /* 增加一點內距避免貼邊 */
     }
 
-    /* 3. 標題區 (置中樣式) */
-    .card-header { 
-      background-color: #fff; /* 改為白色背景 */
-      padding: 0 0 32px 0; 
-      border-bottom: none; 
-      text-align: center; /* 文字置中 */
-    }
-    
+    /* 3. 標題區 (字體縮小) */
+    .card-header { background-color: #f8fafc; padding: 20px; border-bottom: 1px solid #f1f5f9; }
     .header-title { 
-      font-size: 28px; /* 字體加大 */
-      font-weight: bold; 
-      color: #1e293b; 
-      margin: 0 0 16px 0; 
-      display: block; /* 區塊顯示，不使用 flex 以利置中 */
+      font-size: 18px; /* ★ 標題縮小 */
+      font-weight: bold; color: #1e293b; margin: 0 0 5px 0; display: flex; align-items: center; gap: 8px; 
     }
-    
-    .header-desc { 
-      color: #64748b; 
-      margin: 0; 
-      font-size: 16px; 
-      line-height: 1.6;
-    }
+    .icon-calc { color: #059669; width: 20px; height: 20px; }
+    .header-desc { color: #64748b; margin: 0; font-size: 13px; } /* 副標題縮小 */
 
     /* 4. 內容區 */
-    .card-body { padding: 0 20px 20px 20px; }
+    .card-body { padding: 25px; }
 
-    /* 5. 滑桿控制區 (核心修改) */
-    .control-group { 
-      margin-bottom: 40px; 
-      text-align: center; /* 讓內容置中 */
-    }
+    /* 5. 滑桿控制 */
+    .control-group { margin-bottom: 25px; }
+    .qty-label { display: block; font-size: 14px; font-weight: 500; color: #334155; margin-bottom: 10px; }
+    .highlight-qty { color: #059669; font-weight: bold; font-size: 22px; margin-left: 5px; }
     
-    /* 數量標籤樣式調整 */
-    .qty-label { 
-      display: block; 
-      font-size: 18px; 
-      font-weight: 500; 
-      color: #334155; 
-      margin-bottom: 24px; 
-    }
+    input[type=range] { -webkit-appearance: none; width: 100%; height: 8px; background: #e2e8f0; border-radius: 6px; outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #059669; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     
-    /* 數字特大化 */
-    .highlight-qty { 
-      color: #059669; 
-      font-weight: bold; 
-      font-size: 48px; /* 特大字體 */
-      margin: 0 8px;
-      vertical-align: middle;
-      font-family: Arial, sans-serif;
-    }
-    
-    /* 滑桿軌道樣式 (加粗) */
-    input[type=range] { 
-      -webkit-appearance: none; 
-      width: 100%; 
-      height: 16px; /* 軌道高度增加 */
-      background: #cbd5e1; /* 軌道顏色加深一點，增加對比 */
-      border-radius: 8px; 
-      outline: none; 
-      cursor: pointer; 
-      margin-bottom: 8px;
-    }
-    
-    /* 滑塊樣式 (放大、陰影) */
-    input[type=range]::-webkit-slider-thumb { 
-      -webkit-appearance: none; 
-      width: 32px; /* 寬度加大 */
-      height: 32px; /* 高度加大 */
-      background: #059669; /* 金鍏綠 */
-      border-radius: 50%; 
-      cursor: pointer; 
-      border: 4px solid #fff; /* 增加白邊 */
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* 增加陰影立體感 */
-      margin-top: -2px; /* 微調垂直位置(視軌道高度而定，通常不需要如果高度一致) */
-      transition: transform 0.1s ease;
-    }
-    
-    input[type=range]:active::-webkit-slider-thumb {
-      transform: scale(1.1); /* 點擊時微放大 */
-    }
-    
-    .range-marks { display: flex; justify-content: space-between; margin-top: 8px; color: #64748b; font-size: 14px; font-weight: 500;}
+    .range-marks { display: flex; justify-content: space-between; margin-top: 8px; color: #94a3b8; font-size: 12px; }
 
-    /* 6. 結果顯示區 (維持黑底風格) */
-    .result-box { background-color: #0f172a; border-radius: 16px; padding: 40px 32px; text-align: center; position: relative; overflow: hidden; color: #fff; margin-bottom: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    /* 6. 結果顯示區 (緊湊版) */
+    .result-box { background-color: #0f172a; border-radius: 16px; padding: 25px; text-align: center; position: relative; overflow: hidden; color: #fff; }
     .result-content { position: relative; z-index: 10; }
-    .result-subtitle { color: #cbd5e1; font-size: 16px; font-weight: 500; margin: 0 0 12px 0; letter-spacing: 1px; }
-    .result-amount { font-size: 56px; font-weight: 900; color: #fff; margin-bottom: 20px; line-height: 1; }
+    .result-subtitle { color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-size: 11px; font-weight: 600; margin: 0 0 5px 0; }
     
-    .result-desc-green { color: #34d399; font-weight: 500; font-size: 20px; margin: 0 0 8px 0; }
-    .result-desc-small { color: #94a3b8; font-size: 14px; margin: 0; opacity: 0.8; }
+    /* ★ 金額字體縮小 */
+    .result-amount { font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 10px; line-height: 1.1; }
     
+    .result-desc-green { color: #34d399; font-weight: 500; font-size: 15px; margin: 0 0 5px 0; }
+    .result-desc-small { color: #64748b; font-size: 12px; margin: 0; opacity: 0.8; }
     .bg-shimmer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent); z-index: 1; }
-
-    /* 7. 採購建議 */
-    .suggestion-box { background-color: #ecfdf5; border: 1px solid #d1fae5; border-radius: 12px; padding: 20px; display: flex; align-items: flex-start; gap: 16px; }
-    .icon-check { color: #059669; flex-shrink: 0; margin-top: 2px; width: 24px; height: 24px; }
-    .sug-title { color: #064e3b; font-weight: bold; margin: 0 0 8px 0; font-size: 18px; }
-    .sug-desc { color: #047857; font-size: 15px; line-height: 1.6; margin: 0; text-align: justify; }
-    .green-text { color: #059669; }
-    .highlight-underline { text-decoration: underline; text-decoration-color: #10b981; text-decoration-thickness: 3px; text-underline-offset: 4px; font-weight: bold; }
 
     /* RWD */
     @media (max-width: 768px) {
-      .header-title { font-size: 24px; }
-      .highlight-qty { font-size: 40px; }
-      .result-amount { font-size: 42px; }
-      .card-body { padding: 0 10px 20px 10px; }
+      .result-amount { font-size: 32px; }
+      .card-body { padding: 20px; }
     }
   </style>
 </head>
@@ -135,23 +65,18 @@
   <div class="calc-card">
     <div class="card-header">
       <h2 class="header-title">
-        企業換裝金鍏平板燈 省錢效益試算
+        <svg class="icon-calc" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+        省錢效益試算
       </h2>
-      <p class="header-desc">
-        拖曳下方滑桿<br>
-        我們幫您計算換裝 22.5W 高效能燈具 5年可以省下多少電費
-      </p>
+      <p class="header-desc">拖曳滑桿，計算換裝 22.5W 燈具 5年可省下多少</p>
     </div>
 
     <div class="card-body">
       <div class="control-group">
         <label class="qty-label" for="gw-lamp-range">
-          預計更換燈具數量: <span id="gw-qty-display" class="highlight-qty">50</span> 盞
+          預計更換數量: <span id="gw-qty-display" class="highlight-qty">50</span> 盞
         </label>
-        
-        <!-- 滑桿區域 -->
         <input type="range" id="gw-lamp-range" min="1" max="200" step="1" value="50">
-        
         <div class="range-marks">
           <span>1盞</span>
           <span>100盞</span>
@@ -161,27 +86,16 @@
 
       <div class="result-box">
         <div class="result-content">
-          <p class="result-subtitle">估算 5年 累積省下的電費總額可達</p>
+          <p class="result-subtitle">估算 5年 累積省下電費</p>
           <div class="result-amount">NTD <span id="gw-total-savings">65,625</span></div>
-          
           <p class="result-desc-green">
-             單盞 5年 省 NTD 1,312.5 × <span id="gw-qty-text">50</span> 盞
+             單盞省 $1,312.5 × <span id="gw-qty-text">50</span> 盞
           </p>
           <p class="result-desc-small">
-             ( 計算基準：年用 3,000 小時 × 電費 5元/度 × 5 年 )
+             ( 基準：年用 3,000 小時 × $5/度 × 5 年 )
           </p>
         </div>
         <div class="bg-shimmer"></div>
-      </div>
-
-      <div class="suggestion-box">
-        <svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
-        <div class="suggestion-text">
-          <h4 class="sug-title">採購建議</h4>
-          <p class="sug-desc">
-            若您更換 <span id="gw-qty-sug">50</span> 盞燈，使用 5 年省下 <strong class="green-text">NTD <span id="gw-savings-sug">65,625</span></strong> 元電費，通常已經超過了購買這批燈具的成本。這意味著您現在是<span class="highlight-underline">免費升級金鍏高效平板燈</span>，享有 5 年安心保固 (零換修成本) + 耐用可達 10 年！
-          </p>
-        </div>
       </div>
     </div>
   </div>
@@ -191,33 +105,23 @@
       var rangeInput = document.getElementById('gw-lamp-range');
       var qtyDisplay = document.getElementById('gw-qty-display');
       var qtyText = document.getElementById('gw-qty-text');
-      var qtySug = document.getElementById('gw-qty-sug');
       var totalSavingsDisplay = document.getElementById('gw-total-savings');
-      var savingsSugDisplay = document.getElementById('gw-savings-sug');
-      
-      // 更新後的計算參數：
-      // 市售 40W - 金鍏 22.5W = 省 17.5W
-      // 17.5W * 3000小時 * 5年 * 5元 / 1000 = 1312.5 元
       var SAVING_PER_LAMP = 1312.5;
 
       function updateCalculator() {
         var quantity = parseInt(rangeInput.value);
         var total = quantity * SAVING_PER_LAMP;
         
-        // 使用 toLocaleString 處理千分位
-        var formattedTotal = total.toLocaleString('zh-TW', { maximumFractionDigits: 1 });
+        // 無條件捨去小數點，並加上千分位逗號
+        var formattedTotal = Math.floor(total).toLocaleString();
 
         qtyDisplay.textContent = quantity;
         qtyText.textContent = quantity;
-        qtySug.textContent = quantity;
         totalSavingsDisplay.textContent = formattedTotal;
-        savingsSugDisplay.textContent = formattedTotal;
       }
 
       if(rangeInput) {
         rangeInput.addEventListener('input', updateCalculator);
-        // 初始化執行一次
-        updateCalculator();
       }
     })();
   </script>
