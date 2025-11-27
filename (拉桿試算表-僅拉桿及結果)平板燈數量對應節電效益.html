@@ -3,74 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>企業規模效益試算 (精簡版)</title>
+  <title>企業規模效益試算 (純計算機版)</title>
   <style>
     /* 1. 基礎重置 */
-    body { margin: 0; padding: 0; background: transparent; font-family: "Microsoft JhengHei", Arial, sans-serif; }
+    body { margin: 0; padding: 0; background: transparent; font-family: "Microsoft JhengHei", Arial, sans-serif; overflow: hidden; }
     
-    /* 2. 容器 */
+    /* 2. 容器 (移除邊框與陰影，因為要融入主頁面) */
     .calc-card {
-      background-color: #fff;
-      border-radius: 20px; /* 圓角稍微縮小 */
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-      border: 1px solid #f1f5f9;
-      overflow: hidden;
+      background-color: transparent;
       max-width: 100%;
       margin: 0 auto;
     }
 
-    /* 3. 標題區 (字體縮小) */
-    .card-header { background-color: #f8fafc; padding: 20px; border-bottom: 1px solid #f1f5f9; }
-    .header-title { 
-      font-size: 18px; /* ★ 標題縮小 */
-      font-weight: bold; color: #1e293b; margin: 0 0 5px 0; display: flex; align-items: center; gap: 8px; 
-    }
-    .icon-calc { color: #059669; width: 20px; height: 20px; }
-    .header-desc { color: #64748b; margin: 0; font-size: 13px; } /* 副標題縮小 */
+    /* 3. 內容區 */
+    .card-body { padding: 10px 5px; }
 
-    /* 4. 內容區 */
-    .card-body { padding: 25px; }
-
-    /* 5. 滑桿控制 */
-    .control-group { margin-bottom: 25px; }
-    .qty-label { display: block; font-size: 14px; font-weight: 500; color: #334155; margin-bottom: 10px; }
-    .highlight-qty { color: #059669; font-weight: bold; font-size: 22px; margin-left: 5px; }
+    /* 4. 滑桿控制 */
+    .control-group { margin-bottom: 20px; }
+    .qty-label { display: block; font-size: 16px; font-weight: 500; color: #334155; margin-bottom: 10px; text-align: center;}
+    .highlight-qty { color: #059669; font-weight: bold; font-size: 24px; margin-left: 5px; }
     
     input[type=range] { -webkit-appearance: none; width: 100%; height: 8px; background: #e2e8f0; border-radius: 6px; outline: none; cursor: pointer; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #059669; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: #059669; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     
     .range-marks { display: flex; justify-content: space-between; margin-top: 8px; color: #94a3b8; font-size: 12px; }
 
-    /* 6. 結果顯示區 (緊湊版) */
+    /* 5. 結果顯示區 (修正字體大小) */
     .result-box { background-color: #0f172a; border-radius: 16px; padding: 25px; text-align: center; position: relative; overflow: hidden; color: #fff; }
     .result-content { position: relative; z-index: 10; }
-    .result-subtitle { color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-size: 11px; font-weight: 600; margin: 0 0 5px 0; }
+    .result-subtitle { color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; font-weight: 600; margin: 0 0 5px 0; }
     
-    /* ★ 金額字體縮小 */
+    /* ★ 金額字體從 48px 縮小至 36px (符合您的要求) */
     .result-amount { font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 10px; line-height: 1.1; }
     
     .result-desc-green { color: #34d399; font-weight: 500; font-size: 15px; margin: 0 0 5px 0; }
     .result-desc-small { color: #64748b; font-size: 12px; margin: 0; opacity: 0.8; }
     .bg-shimmer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent); z-index: 1; }
-
-    /* RWD */
-    @media (max-width: 768px) {
-      .result-amount { font-size: 32px; }
-      .card-body { padding: 20px; }
-    }
   </style>
 </head>
 <body>
 
   <div class="calc-card">
-    <div class="card-header">
-      <h2 class="header-title">
-        <svg class="icon-calc" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
-        省錢效益試算
-      </h2>
-      <p class="header-desc">拖曳滑桿，計算換裝 22.5W 燈具 5年可省下多少</p>
-    </div>
-
     <div class="card-body">
       <div class="control-group">
         <label class="qty-label" for="gw-lamp-range">
@@ -111,8 +84,6 @@
       function updateCalculator() {
         var quantity = parseInt(rangeInput.value);
         var total = quantity * SAVING_PER_LAMP;
-        
-        // 無條件捨去小數點，並加上千分位逗號
         var formattedTotal = Math.floor(total).toLocaleString();
 
         qtyDisplay.textContent = quantity;
