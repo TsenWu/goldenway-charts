@@ -86,6 +86,12 @@
 
     /* 手機版調整 */
     @media (max-width: 768px) {
+      .slide img {
+        /* 改為 contain (包含)，保證顯示全圖，但可能會露底色 */
+        object-fit: contain; 
+        background: #000; /* 露出的底色設為黑色 */
+      }
+    }
       .glass-caption {
         width: 80%;
         bottom: 20px;
@@ -159,4 +165,5 @@
     }
   </script>
 </body>
+
 </html>
