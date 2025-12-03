@@ -6,18 +6,26 @@
   <title>實績輪播</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; font-family: 'Noto Sans TC', sans-serif; background: transparent; }
+    /* 1. 基礎設定 */
+    body { 
+      margin: 0; 
+      padding: 0; 
+      overflow: hidden; 
+      font-family: 'Noto Sans TC', "Microsoft JhengHei", Arial, sans-serif; 
+      background: transparent; 
+    }
     
-    /* 輪播容器 */
+    /* 2. 輪播容器 */
     .slider-container {
       position: relative;
       width: 100%;
       height: 100vh; /* 填滿 iframe 高度 */
       overflow: hidden;
-      border-radius: 12px; /* 圓角 */
+      border-radius: 12px;
+      background-color: #000; /* ★ 預設黑底，防止圖片縮小時露出白邊 */
     }
 
-    /* 圖片軌道 */
+    /* 3. 圖片軌道 */
     .slider-track {
       display: flex;
       width: 100%;
@@ -25,27 +33,32 @@
       transition: transform 0.5s ease-in-out;
     }
 
-    /* 單張幻燈片 */
+    /* 4. 單張幻燈片 */
     .slide {
       min-width: 100%;
       height: 100%;
       position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
     }
 
     .slide img {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* 滿版裁切 */
+      object-fit: cover; /* 桌機預設：填滿裁切 */
+      display: block;
     }
 
-    /* 毛玻璃文字浮層 */
+    /* 5. 毛玻璃文字浮層 */
     .glass-caption {
       position: absolute;
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
       
-      /* 毛玻璃核心 */
+      /* 毛玻璃效果 */
       background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
@@ -54,15 +67,15 @@
       border-radius: 50px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       
-      /* 文字樣式 */
       color: #333;
       font-weight: bold;
       font-size: 18px;
       white-space: nowrap;
       text-align: center;
+      z-index: 2; /* 確保在圖片之上 */
     }
 
-    /* 左右按鈕 */
+    /* 6. 左右按鈕 */
     .nav-btn {
       position: absolute;
       top: 50%;
@@ -84,21 +97,35 @@
     .prev-btn { left: 15px; }
     .next-btn { right: 15px; }
 
-    /* 手機版調整 */
+    /* =========================================
+       ★ RWD 手機版調整 (關鍵修正區) ★
+       ========================================= */
     @media (max-width: 768px) {
+      /* 容器強制黑底 */
+      .slider-container {
+        background: #000 !important;
+      }
+
+      /* 圖片強制完整顯示 (不裁切，留黑邊) */
       .slide img {
-        /* 改為 contain (包含)，保證顯示全圖，但可能會露底色 */
-        object-fit: contain; 
+        object-fit: contain !important; /* ★ 關鍵：完整顯示 */
+        width: 100% !important;
+        height: 100% !important;
         background: #000; /* 露出的底色設為黑色 */
       }
-    }
+
+      /* 文字浮層調整 */
       .glass-caption {
-        width: 80%;
-        bottom: 20px;
-        font-size: 16px;
+        width: 85%; /* 手機版寬一點 */
+        bottom: 15px; /* 稍微往下移，避免遮擋太多圖片 */
+        font-size: 15px;
         padding: 10px 15px;
+        /* 加深背景色，避免在黑底上太突兀，或在白圖上看不清 */
+        background: rgba(255, 255, 255, 0.85); 
       }
-      .nav-btn { width: 36px; height: 36px; }
+      
+      /* 按鈕微調 */
+      .nav-btn { width: 32px; height: 32px; }
     }
   </style>
 </head>
@@ -143,8 +170,8 @@
     const slides = document.querySelectorAll('.slide');
     const totalSlides = slides.length;
 
-    // 自動輪播計時器
-    let autoPlayInterval = setInterval(() => moveSlide(1), 4000); // 4秒換一張
+    // 自動輪播計時器 (4秒)
+    let autoPlayInterval = setInterval(() => moveSlide(1), 4000);
 
     function moveSlide(direction) {
       currentIndex += direction;
@@ -165,5 +192,4 @@
     }
   </script>
 </body>
-
 </html>
