@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>色溫模擬展示 - 4000K / 5000K / 5700K</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自定義滑桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 12px;
+            border-radius: 9999px;
+            background: linear-gradient(to right, #FFD6AA 0%, #FFFFFF 50%, #C8E2FF 100%);
+            outline: none;
+            cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 滑塊 (Thumb) 樣式 - Webkit */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            border: 2px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        /* 滑塊 (Thumb) 樣式 - Firefox */
+        input[type=range]::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            border: 2px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        /* 優化後的混合模式層 */
+        /* 使用 overlay (覆蓋) 模式，可以保留亮部和暗部細節，只改變中間調顏色 */
+        #light-overlay {
+            pointer-events: none;
+            mix-blend-mode: overlay; 
+            transition: background-color 0.1s ease;
+        }
+        
+        #light-overlay-cool {
+            pointer-events: none;
+            mix-blend-mode: overlay; /* 改用 overlay 避免 screen 造成的霧感 */
+            transition: background-color 0.1s ease;
+        }
+
+        /* 圖片本身的濾鏡過渡 */
+        #main-image {
+            transition: filter 0.1s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center font-sans">
+
+    <div class="bg-white p-4 rounded-xl shadow-xl w-full max-w-4xl mx-4">
+        
+        <!-- 標題區 -->
+        <div class="mb-6 text-center">
+            <h1 class="text-2xl font-bold text-gray-800">智慧照明色溫模擬</h1>
+            <p class="text-gray-500 mt-1">拖動下方拉桿體驗 4000K 至 5700K 的光影變化</p>
+        </div>
+
+        <!-- 圖片展示區 (相對定位容器) -->
+        <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-200 shadow-inner mb-8 group">
+            
+            <!-- 原始圖片：加入 ID 方便 JS 控制亮度對比 -->
+            <!-- ★★★ 請在這裡將 src="..." 裡面的內容換成您的圖片網址 ★★★ -->
+            <img id="main-image" src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555_lv1/gw555_bg3.jpg?v=wbfoe4a" alt="辦公室環境圖" class="w-full h-full object-cover">
+
+            <!-- 模擬濾鏡層 1 (負責暖色) -->
+            <div id="light-overlay" class="absolute inset-0 z-10 w-full h-full"></div>
+            
+            <!-- 模擬濾鏡層 2 (負責冷色) -->
+            <div id="light-overlay-cool" class="absolute inset-0 z-10 w-full h-full"></div>
+
+            <!-- 當前數值顯示 (懸浮在圖片上) -->
+            <div class="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-full font-mono text-lg z-20 border border-white/20">
+                <span id="current-k-display">5000K</span>
+            </div>
+        </div>
+
+        <!-- 控制區 -->
+        <div class="px-2 md:px-8 pb-4">
+            <!-- 刻度標籤 -->
+            <div class="flex justify-between text-sm font-bold text-gray-600 mb-2 px-1">
+                <span class="cursor-pointer hover:text-orange-500 transition" onclick="setTemp(4000)">4000K<br><span class="text-xs font-normal text-gray-400">暖白光</span></span>
+                <span class="cursor-pointer hover:text-gray-900 transition text-center" onclick="setTemp(5000)">5000K<br><span class="text-xs font-normal text-gray-400">自然光</span></span>
+                <span class="cursor-pointer hover:text-blue-500 transition text-right" onclick="setTemp(5700)">5700K<br><span class="text-xs font-normal text-gray-400">冷白光</span></span>
+            </div>
+
+            <!-- 拉桿 Input -->
+            <div class="relative h-12 flex items-center">
+                <input type="range" id="temp-slider" min="4000" max="5700" value="5000" step="10">
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const slider = document.getElementById('temp-slider');
+        const overlayWarm = document.getElementById('light-overlay');
+        const overlayCool = document.getElementById('light-overlay-cool');
+        const mainImage = document.getElementById('main-image');
+        const display = document.getElementById('current-k-display');
+
+        function updateColor() {
+            const k = parseInt(slider.value);
+            display.innerText = `${k}K`;
+
+            // 初始化變數
+            let warmOpacity = 0;
+            let coolOpacity = 0;
+            
+            // 圖片基礎濾鏡數值 (亮度、對比、飽和)
+            let brightness = 100;
+            let contrast = 100;
+            let saturate = 100;
+
+            if (k <= 5000) {
+                // --- 4000K -> 5000K (暖色區間) ---
+                const progress = (k - 4000) / 1000; // 0.0 (4000) -> 1.0 (5000)
+                const intensity = 1 - progress;     // 1.0 (4000) -> 0.0 (5000)
+
+                // 設定暖色層 (Overlay 模式)
+                // 使用較明亮的橘黃色，避免 Overlay 讓畫面太暗
+                // ★★★ 調整重點：將 0.5 改為 0.3，讓黃色不要那麼重 ★★★
+                overlayWarm.style.backgroundColor = `rgba(255, 160, 60, ${intensity * 0.2})`;
+                overlayCool.style.backgroundColor = `rgba(0, 0, 0, 0)`;
+
+                // ★ 4000K 補償：稍微提升亮度，避免變太暗
+                // 當 intensity 為 1 (4000K) 時，亮度提升到 105%
+                brightness = 100 + (intensity * 5); 
+
+            } else {
+                // --- 5000K -> 5700K (冷色區間) ---
+                const progress = (k - 5000) / 700; // 0.0 (5000) -> 1.0 (5700)
+
+                // 設定冷色層 (Overlay 模式)
+                // 使用純淨的亮藍色
+                overlayWarm.style.backgroundColor = `rgba(0, 0, 0, 0)`;
+                // ★★★ 調整重點：將 0.45 改為 0.25，讓藍色看起來更清淡 ★★★
+                overlayCool.style.backgroundColor = `rgba(100, 180, 255, ${progress * 0.15})`;
+
+                // ★ 5700K 補償：提升對比度和飽和度，消除霧感
+                // 當 progress 為 1 (5700K) 時，對比度到 108%，飽和度到 110%
+                contrast = 100 + (progress * 8);
+                saturate = 100 + (progress * 10);
+            }
+
+            // 應用 CSS Filter 到圖片本體
+            mainImage.style.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%)`;
+        }
+
+        // 點擊標籤快速跳轉功能
+        function setTemp(val) {
+            slider.value = val;
+            updateColor();
+        }
+
+        // 初始化
+        slider.addEventListener('input', updateColor);
+        window.onload = updateColor;
+
+    </script>
+</body>
+</html>
