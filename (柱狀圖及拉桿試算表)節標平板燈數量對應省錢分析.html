@@ -97,10 +97,11 @@
                         <!-- 卡片 3: 淨獲利金額 (幫客戶賺錢) -->
                         <div class="info-card p-6 rounded-xl border-4 border-light-red/50 bg-light-red/10 flex flex-col justify-center items-center text-center shadow-lg h-full">
                             <p class="text-lg font-medium text-gray-800">5年保固期內 金鍏幫您賺</p>
-                            <p class="text-5xl font-extrabold text-light-red mt-3" id="net-profit-total">NT$ 136,250</p>
+                            <p class="text-4xl font-extrabold text-light-red mt-3" id="net-profit-total">NT$ 136,250</p>
                             <p class="text-sm text-gray-800 mt-3" id="profit-breakdown">
                                 (單盞淨賺 NT$ 2,725 × 50 盞)
                             </p>
+                            <!-- NEW: Added formula and selling point text -->
                             <p class="text-sm font-medium text-gray-600 mt-2">
                                 （總節省 − 初始差價）
                             </p>
@@ -115,32 +116,9 @@
             </div> 
 
         </div> <!-- End of Flex Container -->
+        
+        <!-- 移除底部靜態說明區塊 -->
 
-        <!-- 底部區域: 圖例 + 獲利分析說明 -->
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 md:gap-8">
-            <!-- 左側: 圖例 (md:col-span-2) -->
-            <div class="md:col-span-2">
-                <div class="p-4 bg-white rounded-xl shadow">
-                    <h3 class="font-semibold text-lg mb-3">成本組成圖例：</h3>
-                    <div class="flex flex-wrap gap-4 text-sm">
-                        <!-- 初始成本 (使用新的 cost-initial 顏色) -->
-                        <div class="flex items-center"><span class="w-4 h-4 rounded-sm bg-cost-initial mr-2"></span>初始成本 (購置)</div>
-                        <!-- 電費 (使用新的 cost-electricity 顏色) -->
-                        <div class="flex items-center"><span class="w-4 h-4 rounded-sm bg-cost-electricity mr-2"></span>電費 (5 年)</div>
-                        <!-- 換修成本 (使用新的 cost-repair 顏色) -->
-                        <div class="flex items-center"><span class="w-4 h-4 rounded-sm bg-cost-repair mr-2"></span>換修成本 (5 年)</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 右側: 獲利分析說明 (md:col-span-1) -->
-            <div class="mt-4 md:mt-0 md:col-span-1 text-gray-700 text-sm flex items-center">
-                <p>
-                    <span class="font-bold text-gray-800">🏆 5 年淨獲利分析說明：</span><br class="md:hidden"/>
-                    以最昂貴的 T5 螢光燈管為基準，計算您使用金鍏燈所獲得的**實質淨回報**。
-                </p>
-            </div>
-        </div>
     </div>
 
 
@@ -257,9 +235,9 @@
             const goldwell = productData[0];
             const t5 = productData[3];
             const goldwellTotal = goldwell.initial + goldwell.electricity + goldwell.repair;
-            const t5Total = t5.initial + t5.electricity + t5.repair;
+            const t5TCO = t5.initial + t5.electricity + t5.repair;
 
-            const totalSaving = t5Total - goldwellTotal;
+            const totalSaving = t5TCO - goldwellTotal;
             const initialGap = goldwell.initial - t5.initial;
             const netProfit = totalSaving - initialGap;
             
