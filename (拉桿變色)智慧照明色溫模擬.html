@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧照明色溫模擬</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        /* 全局字體 */
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: transparent; }
+
+        /* 自定義滑桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 9999px;
+            /* 漂亮的漸層色條 */
+            background: linear-gradient(to right, #ffb74d 0%, #ffffff 50%, #4fc3f7 100%);
+            outline: none;
+            cursor: pointer;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* 滑塊 (Thumb) 樣式 */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #666;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.1s;
+            margin-top: -8px; /* 修正垂直置中 */
+        }
+        
+        /* 針對 Firefox 的滑塊修正 */
+        input[type=range]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #666;
+            cursor: pointer;
+        }
+
+        /* 混合模式層 */
+        .overlay {
+            pointer-events: none;
+            mix-blend-mode: overlay; 
+            transition: background-color 0.2s ease;
+        }
+
+        /* 圖片容器 */
+        .img-container {
+            position: relative;
+            width: 100%;
+            /* 使用 aspect-ratio 保持比例，或者固定高度 */
+            height: 450px; 
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        
+        /* 數值標籤 */
+        .k-label {
+            cursor: pointer;
+            transition: color 0.2s;
+            font-size: 14px;
+            font-weight: bold;
+            color: #888;
+        }
+        .k-label:hover { color: #333; }
+        .k-sub { font-size: 12px; font-weight: normal; display: block; }
+
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-0 m-0">
+
+    <div class="w-full h-full flex flex-col justify-center">
+        
+        <div class="img-container shadow-lg group">
+            
+            <img id="main-image" src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555_lv1/gw555_bg3.jpg?v=wbfoe4a" alt="辦公室環境圖" class="w-full h-full object-cover transition-all duration-200">
+
+            <div id="light-overlay" class="absolute inset-0 z-10 w-full h-full"></div>
+            <div id="light-overlay-cool" class="absolute inset-0 z-10 w-full h-full"></div>
+
+            <div class="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full font-mono text-sm z-20">
+                <span id="current-k-display">5000K</span>
+            </div>
+        </div>
+
+        <div class="pt-6 px-2 w-full">
+            <div class="flex justify-between mb-2">
+                <div class="k-label text-left" onclick="setTemp(4000)">4000K<span class="k-sub">暖白光</span></div>
+                <div class="k-label text-center" onclick="setTemp(5000)">5000K<span class="k-sub">自然光</span></div>
+                <div class="k-label text-right" onclick="setTemp(5700)">5700K<span class="k-sub">冷白光</span></div>
+            </div>
+
+            <div class="relative w-full flex items-center">
+                <input type="range" id="temp-slider" min="0" max="100" value="50" step="1">
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const slider = document.getElementById('temp-slider');
+        const overlayWarm = document.getElementById('light-overlay');
+        const overlayCool = document.getElementById('light-overlay-cool');
+        const mainImage = document.getElementById('main-image');
+        const display = document.getElementById('current-k-display');
+
+        function updateColor() {
+            const val = parseInt(slider.value);
+            let k;
+            let brightness = 100;
+            let contrast = 100;
+
+            if (val <= 50) {
+                // 4000K - 5000K
+                const p = val / 50;
+                k = Math.round(4000 + (p * 1000));
+                const intensity = 1 - p;
+                
+                overlayWarm.style.backgroundColor = `rgba(255, 160, 60, ${intensity * 0.25})`; // 稍微加強暖色
+                overlayCool.style.backgroundColor = 'transparent';
+                brightness = 100 + (intensity * 5); 
+
+            } else {
+                // 5000K - 5700K
+                const p = (val - 50) / 50;
+                k = Math.round(5000 + (p * 700));
+                
+                overlayWarm.style.backgroundColor = 'transparent';
+                overlayCool.style.backgroundColor = `rgba(100, 180, 255, ${p * 0.2})`; // 稍微加強冷色
+                contrast = 100 + (p * 5);
+            }
+
+            display.innerText = `${k}K`;
+            mainImage.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+        }
+
+        function setTemp(targetK) {
+            if (targetK === 4000) slider.value = 0;
+            else if (targetK === 5000) slider.value = 50;
+            else if (targetK === 5700) slider.value = 100;
+            updateColor();
+        }
+
+        slider.addEventListener('input', updateColor);
+        window.onload = updateColor;
+    </script>
+</body>
+</html>
