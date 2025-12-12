@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5 年成本分析互動圖表</title>
+    <!-- 載入 Tailwind CSS (必要) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-green': '#10b981', // 祖母綠 (金鍏色)
+                        'secondary-blue': '#3b82f6',
+                        'light-red': '#f87171', 
+                        'light-yellow': '#fbbf24', 
+
+                        // --- 成本組成顏色 (與 CMS CSS 保持一致) ---
+                        'cost-initial': '#6B8F71',  // 初始成本 - Reseda green
+                        'cost-electricity': '#EDAE49', // 電費 - Hunyadi yellow
+                        'cost-repair': '#D1495B',   // 換修成本 - Amaranth
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .bar-container {
+            display: flex;
+            align-items: flex-end;
+            height: 300px;
+        }
+        .bar {
+            transition: height 0.8s ease-out;
+            cursor: pointer;
+        }
+        .info-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        /* 確保滑桿的 accent color 在所有瀏覽器中都使用 light-red */
+        .accent-light-red {
+            accent-color: #f87171; 
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-4 sm:p-8 font-sans">
+    
+    <!-- 該內容將顯示在 iframe 內部 -->
+    <div id="chart-content" class="w-full">
+        
+        <!-- 主體佈局 (長條圖 + 獲利分析) -->
+        <div class="md:flex md:space-x-8">
+
+            <!-- 左側區域: 圖表 (md:w-2/3) -->
+            <div class="md:w-2/3">
+                <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 mb-4">
+                    <h2 class="text-xl font-bold mb-4 text-gray-700">總持有成本長條圖 (NT\$)</h2>
+                    <div class="bar-container relative border-b border-l border-gray-300">
+                        <!-- Y 軸標籤 (成本) -->
+                        <div class="absolute inset-y-0 left-0 -translate-x-full pr-2 text-gray-500 text-xs sm:text-sm">
+                            <div class="absolute top-0 right-0">6,500</div>
+                            <div class="absolute top-1/3 right-0 -translate-y-1/2">4,333</div>
+                            <div class="absolute bottom-0 right-0 translate-y-1/2">0</div>
+                        </div>
+
+                        <!-- 長條圖 -->
+                        <div id="chart-bars" class="flex flex-1 items-end h-full"></div>
+                    </div>
+
+                    <!-- X 軸標籤 (產品名稱) -->
+                    <div id="chart-labels" class="flex pt-2 text-center text-xs sm:text-sm font-semibold"></div>
+                </div>
+            </div> 
+
+            <!-- 右側區域: 淨獲利分析 (md:w-1/3) -->
+            <div class="mt-8 md:mt-0 md:w-1/3">
+                <div class="h-full flex flex-col justify-center">
+
+                    <!-- NEW: Quantity Slider -->
+                    <div class="bg-white rounded-xl shadow-md p-4 mb-6">
+                        <p class="text-sm font-semibold text-gray-700 mb-2">預計更換數量: <span id="quantity-display" class="text-xl text-light-red font-bold">50 盞</span></p>
+                        <input type="range" id="quantity-slider" min="1" max="200" value="50" step="1" 
+                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-light-red">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>1盞</span>
+                            <span>200盞</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 h-full flex-grow">
+                        <!-- 卡片 3: 淨獲利金額 (幫客戶賺錢) -->
+                        <div class="info-card p-6 rounded-xl border-4 border-light-red/50 bg-light-red/10 flex flex-col justify-center items-center text-center shadow-lg h-full">
+                            <p class="text-lg font-medium text-gray-800">5年保固期內 金鍏幫您賺</p>
+                            <p class="text-5xl font-extrabold text-light-red mt-3" id="net-profit-total">NT$ 136,250</p>
+                            <p class="text-sm text-gray-800 mt-3" id="profit-breakdown">
+                                (單盞淨賺 NT$ 2,725 × 50 盞)
+                            </p>
+                            <p class="text-sm font-medium text-gray-600 mt-2">
+                                （總節省 − 初始差價）
+                            </p>
+                            <p class="text-sm font-bold text-gray-800 mt-3">
+                                金鍏優質燈具 5年超長保固+超省電+零換修成本 幫您 <span class="text-light-red">實賺</span> 回來的高額回報！
+                            </p>
+                            <!-- 隱藏的單盞淨獲利值 -->
+                            <div id="net-profit-per-unit" class="hidden">2725</div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+
+        </div> <!-- End of Flex Container -->
+
+        <!-- 底部區域: 圖例 + 獲利分析說明 -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 md:gap-8">
+            <!-- 左側: 圖例 (md:col-span-2) -->
+            <div class="md:col-span-2">
+                <div class="p-4 bg-white rounded-xl shadow">
+                    <h3 class="font-semibold text-lg mb-3">成本組成圖例：</h3>
+                    <div class="flex flex-wrap gap-4 text-sm">
+                        <!-- 初始成本 (使用新的 cost-initial 顏色) -->
+                        <div class="flex items-center"><span class="w-4 h-4 rounded-sm bg-cost-initial mr-2"></span>初始成本 (購置)</div>
+                        <!-- 電費 (使用新的 cost-electricity 顏色) -->
+                        <div class="flex items-center"><span class="w-4 h-4 rounded-sm bg-cost-electricity mr-2"></span>電費 (5 年)</div>
+                        <!-- 換修成本 (使用新的 cost-repair 顏色) -->
+                        <div class="flex items-center"><span class="w-4 h-4 rounded-sm bg-cost-repair mr-2"></span>換修成本 (5 年)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側: 獲利分析說明 (md:col-span-1) -->
+            <div class="mt-4 md:mt-0 md:col-span-1 text-gray-700 text-sm flex items-center">
+                <p>
+                    <span class="font-bold text-gray-800">🏆 5 年淨獲利分析說明：</span><br class="md:hidden"/>
+                    以最昂貴的 T5 螢光燈管為基準，計算您使用金鍏燈所獲得的**實質淨回報**。
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // 產品數據 - **已根據最新的表格數據更新**
+        const productData = [
+            // 金鍏平板燈 (60x60cm)
+            { name: "金鍏LED平板燈 (21W)", color: 'bg-primary-green', initial: 1400, electricity: 1575, repair: 0, hoverColor: 'hover:bg-green-700' },
+            // LED 平板燈 (60x60cm)
+            { name: "市售LED平板燈 (25W)", color: 'bg-secondary-blue', initial: 500, electricity: 3000, repair: 750, hoverColor: 'hover:bg-blue-700' },
+            // 格柵燈 (LED T8 4支/組)
+            { name: "格柵燈(T8燈管*4) (40W)", color: 'bg-light-yellow', initial: 750, electricity: 3225, repair: 800, hoverColor: 'hover:bg-yellow-600' }, 
+            // 格柵燈 T5 螢光燈管 4支/組
+            { name: "格柵燈(T5螢光燈管*4) (64W)", color: 'bg-light-red', initial: 750, electricity: 4800, repair: 800, hoverColor: 'hover:bg-red-700' }, 
+        ];
+
+        const chartBars = document.getElementById('chart-bars');
+        const chartLabels = document.getElementById('chart-labels');
+        const maxCost = 6350; // T5 的總持有成本作為最大基準
+
+        // 單盞淨獲利計算 (Per-unit Net Profit Calculation)
+        let netProfitPerUnit = 0;
+
+        function renderChart() {
+            chartBars.innerHTML = '';
+            chartLabels.innerHTML = '';
+
+            productData.forEach((data, index) => { 
+                const totalCost = data.initial + data.electricity + data.repair;
+                const heightPercentage = (totalCost / maxCost) * 100;
+                
+                const barDiv = document.createElement('div');
+                // 為金鍏產品添加更突出的邊框
+                const borderColorClass = index === 0 ? 'border-2 border-primary-green/70 ring-2 ring-primary-green/50' : '';
+                barDiv.className = `bar w-1/4 h-0 mx-1 md:mx-2 flex flex-col justify-end items-center rounded-t-lg ${data.color} relative group shadow-lg ${borderColorClass}`;
+                barDiv.style.height = `${heightPercentage}%`;
+                barDiv.style.minHeight = '10px';
+                
+                // --- 新增: 金鍏平板燈 (index === 0) 頂部的 "賺!" 圖示 ---
+                if (index === 0) {
+                    const profitIconDiv = document.createElement('div');
+                    // 使用 top-[-70px] 來確保圖示比金額標籤更高，避免重疊。
+                    profitIconDiv.className = 'absolute right-1/2 translate-x-1/2 w-12 h-12 rounded-full bg-cost-repair flex items-center justify-center shadow-2xl z-30 transform hover:scale-110 transition-transform duration-300 border-4 border-white top-[-70px]'; 
+                    profitIconDiv.innerHTML = '<span class="text-2xl font-black text-white">賺!</span>';
+                    barDiv.appendChild(profitIconDiv);
+                }
+                
+                const totalCostLabel = document.createElement('div');
+                // 金額標籤保持原位，在圖示下方
+                totalCostLabel.className = 'absolute top-0 transform -translate-y-full mt-1 font-bold text-xs sm:text-sm text-gray-800 bg-white px-1 py-0.5 rounded shadow-md z-20 whitespace-nowrap';
+                totalCostLabel.innerHTML = `NT$ ${totalCost.toLocaleString()}`;
+                barDiv.appendChild(totalCostLabel);
+
+                // 成本組成的顏色順序：換修 (底) -> 電費 (中) -> 初始 (頂)
+                const costs = [
+                    // 換修成本 (Bottom) - 使用新的 Amaranth (D1495B)
+                    { value: data.repair, label: '5年換修', color: 'bg-cost-repair' }, 
+                    // 電費 (Middle) - 使用新的 Hunyadi yellow (EDAE49)
+                    { value: data.electricity, label: '5年電費', color: 'bg-cost-electricity' },
+                    // 初始投入成本 (Top) - 使用新的 Reseda green (6B8F71)
+                    { value: data.initial, label: '初始成本', color: 'bg-cost-initial' }
+                ];
+
+                costs.forEach(cost => {
+                    if (cost.value > 0) {
+                        const segmentHeight = (cost.value / totalCost) * 100;
+                        const segmentDiv = document.createElement('div');
+                        segmentDiv.className = `${cost.color} w-full transition-all duration-700 ease-out relative group/segment`;
+                        segmentDiv.style.height = `${segmentHeight}%`;
+                        
+                        const segmentTooltip = document.createElement('div');
+                        segmentTooltip.className = 'absolute inset-0 flex items-center justify-center text-[10px] sm:text-xs text-white font-semibold rounded opacity-0 group-hover/segment:opacity-100 transition-opacity whitespace-nowrap z-30 bg-black/60 backdrop-blur-[1px]';
+                        segmentTooltip.innerHTML = `${cost.label}: ${cost.value.toLocaleString()} 元`;
+                        
+                        segmentDiv.appendChild(segmentTooltip);
+                        
+                        barDiv.appendChild(segmentDiv); 
+                    }
+                });
+                
+                chartBars.appendChild(barDiv);
+
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'w-1/4 px-1 md:px-2 truncate';
+                // 嘗試提取主要名稱，避免標籤過長
+                const shortNameMap = {
+                    "金鍏LED平板燈 (21W)": "金鍏LED平板燈",
+                    "市售LED平板燈 (25W)": "市售LED平板燈",
+                    "格柵燈(T8燈管*4) (40W)": "格柵燈(LED T8)",
+                    "格柵燈(T5螢光燈管*4) (64W)": "格柵燈(T5)",
+                };
+                labelDiv.textContent = shortNameMap[data.name] || data.name.split(' ')[0]; 
+                labelDiv.title = data.name; // 完整名稱作為提示
+                chartLabels.appendChild(labelDiv);
+            });
+        }
+
+        // Function to update the profit display based on the slider
+        function updateProfitDisplay(quantity) {
+            // Retrieve the calculated per-unit profit
+            const profitPerUnit = netProfitPerUnit;
+            
+            // Calculate total profit
+            const totalProfit = profitPerUnit * quantity;
+            
+            // Update the display elements
+            document.getElementById('quantity-display').textContent = `${quantity.toLocaleString()} 盞`;
+            document.getElementById('net-profit-total').textContent = `NT$ ${totalProfit.toLocaleString()}`;
+            document.getElementById('profit-breakdown').innerHTML = `(單盞淨賺 NT$ ${profitPerUnit.toLocaleString()} × ${quantity.toLocaleString()} 盞)`;
+        }
+
+
+        function calculateSavings() {
+            const goldwell = productData[0];
+            const t5 = productData[3];
+            const goldwellTotal = goldwell.initial + goldwell.electricity + goldwell.repair;
+            const t5Total = t5.initial + t5.electricity + t5.repair;
+
+            const totalSaving = t5Total - goldwellTotal;
+            const initialGap = goldwell.initial - t5.initial;
+            const netProfit = totalSaving - initialGap;
+            
+            // Store per unit net profit
+            netProfitPerUnit = netProfit; 
+            document.getElementById('net-profit-per-unit').textContent = netProfit;
+            
+            // Initialize display with default quantity (50)
+            const initialQuantity = parseInt(document.getElementById('quantity-slider').value);
+            updateProfitDisplay(initialQuantity);
+        }
+
+        // --- Gemini API Integration ---
+        const apiKey = ""; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        async function exponentialBackoffFetch(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status !== 429 && response.ok) {
+                        return response;
+                    } else if (response.status === 429 && i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+                } catch (error) {
+                    if (i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+        }
+
+        async function askGemini() {
+            const queryInput = document.getElementById('ai-query');
+            const responseContainer = document.getElementById('ai-response-container');
+            const responseDiv = document.getElementById('ai-response');
+            const loadingDiv = document.getElementById('ai-loading');
+            const query = queryInput.value.trim();
+
+            if (!query) {
+                responseDiv.innerHTML = '請輸入您的問題！';
+                responseContainer.classList.remove('hidden');
+                return;
+            }
+            
+            // 確保 API Key 已設定
+            if (!apiKey) {
+                responseDiv.innerHTML = '請先在程式碼中設定您的 Gemini API Key！';
+                responseContainer.classList.remove('hidden');
+                return;
+            }
+
+
+            const netProfitValue = netProfitPerUnit;
+            const goldwellTCO = productData[0].initial + productData[0].electricity + productData[0].repair;
+            const t5TCO = productData[3].initial + productData[3].electricity + productData[3].repair;
+            const initialGapValue = productData[0].initial - productData[3].initial;
+
+            const systemPrompt = `你是一位世界級的照明產品銷售顧問和成本效益分析師。你的任務是使用提供的數據和客戶提出的問題，給出一個具有說服力、簡潔且專業的銷售回答。
+            
+            核心數據 (以 T5 為基準)：
+            - 金鍏LED平板燈 5 年單盞總持有成本 (TCO): NT$ ${goldwellTCO.toLocaleString()}
+            - T5 格柵燈 5 年單盞總持有成本 (TCO): NT$ ${t5TCO.toLocaleString()}
+            - 單盞淨獲利金額 (金鍏LED平板燈讓客戶實賺): NT$ ${netProfitValue} (這是扣除初始價差後的淨回報)
+            - 初始投入差價 (金鍏LED平板燈比 T5 貴): NT$ ${initialGapValue}
+
+            請務必在回答中引用這些數據，並強調金鍏LED平板燈的長期效益和零換修成本 (repair: 0)。回答必須是繁體中文。`;
+
+            const userQuery = `客戶問題：${query}`;
+
+            // UI Updates
+            loadingDiv.classList.remove('hidden');
+            responseContainer.classList.remove('hidden');
+            responseDiv.textContent = '...';
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            try {
+                const response = await exponentialBackoffFetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text || '抱歉，無法生成回應。';
+                
+                responseDiv.textContent = text;
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                responseDiv.textContent = 'AI 服務連線失敗，請稍後再試。';
+            } finally {
+                loadingDiv.classList.add('hidden');
+            }
+        }
+
+        // 初始化：確保在所有 DOM 載入後執行
+        window.addEventListener('load', function() {
+            renderChart();
+            calculateSavings(); // Needed for getting net profit value
+
+            // Add event listener for the AI button
+            const askButton = document.getElementById('ask-ai-button');
+            if (askButton) {
+                askButton.addEventListener('click', askGemini);
+            }
+
+            // Add event listener for the slider
+            const slider = document.getElementById('quantity-slider');
+            if (slider) {
+                slider.addEventListener('input', (e) => {
+                    updateProfitDisplay(parseInt(e.target.value));
+                });
+            }
+        });
+    </script>
