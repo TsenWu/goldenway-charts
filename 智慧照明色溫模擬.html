@@ -107,8 +107,9 @@
             </div>
 
             <!-- 拉桿 Input -->
+            <!-- ★★★ 修改重點：將 min/max 改為 0-100，讓 50 剛好在中間，解決對齊問題 ★★★ -->
             <div class="relative h-12 flex items-center">
-                <input type="range" id="temp-slider" min="4000" max="5700" value="5000" step="10">
+                <input type="range" id="temp-slider" min="0" max="100" value="50" step="1">
             </div>
         </div>
 
@@ -122,9 +123,10 @@
         const display = document.getElementById('current-k-display');
 
         function updateColor() {
-            const k = parseInt(slider.value);
-            display.innerText = `${k}K`;
-
+            // ★★★ 修改重點：將拉桿數值 (0-100) 轉換為色溫，確保 50% 位置剛好是 5000K
+            const val = parseInt(slider.value);
+            let k;
+            
             // 初始化變數
             let warmOpacity = 0;
             let coolOpacity = 0;
@@ -134,44 +136,53 @@
             let contrast = 100;
             let saturate = 100;
 
-            if (k <= 5000) {
-                // --- 4000K -> 5000K (暖色區間) ---
-                const progress = (k - 4000) / 1000; // 0.0 (4000) -> 1.0 (5000)
-                const intensity = 1 - progress;     // 1.0 (4000) -> 0.0 (5000)
+            if (val <= 50) {
+                // --- 區間：左半邊 (0-50) 對應 4000K-5000K ---
+                // 計算此區間的進度 0.0 -> 1.0
+                const sectionProgress = val / 50;
+                
+                // 計算顯示用的 K 值
+                k = Math.round(4000 + (sectionProgress * 1000));
 
-                // 設定暖色層 (Overlay 模式)
-                // 使用較明亮的橘黃色，避免 Overlay 讓畫面太暗
-                // ★★★ 調整重點：將 0.5 改為 0.3，讓黃色不要那麼重 ★★★
+                const intensity = 1 - sectionProgress; // 越往左越強
+
+                // 設定暖色層
                 overlayWarm.style.backgroundColor = `rgba(255, 160, 60, ${intensity * 0.2})`;
                 overlayCool.style.backgroundColor = `rgba(0, 0, 0, 0)`;
 
-                // ★ 4000K 補償：稍微提升亮度，避免變太暗
-                // 當 intensity 為 1 (4000K) 時，亮度提升到 105%
+                // 4000K 補償
                 brightness = 100 + (intensity * 5); 
 
             } else {
-                // --- 5000K -> 5700K (冷色區間) ---
-                const progress = (k - 5000) / 700; // 0.0 (5000) -> 1.0 (5700)
+                // --- 區間：右半邊 (51-100) 對應 5000K-5700K ---
+                // 計算此區間的進度 0.0 -> 1.0
+                const sectionProgress = (val - 50) / 50;
+                
+                // 計算顯示用的 K 值
+                k = Math.round(5000 + (sectionProgress * 700));
 
-                // 設定冷色層 (Overlay 模式)
-                // 使用純淨的亮藍色
+                // 設定冷色層
                 overlayWarm.style.backgroundColor = `rgba(0, 0, 0, 0)`;
-                // ★★★ 調整重點：將 0.45 改為 0.25，讓藍色看起來更清淡 ★★★
-                overlayCool.style.backgroundColor = `rgba(100, 180, 255, ${progress * 0.15})`;
+                overlayCool.style.backgroundColor = `rgba(100, 180, 255, ${sectionProgress * 0.15})`;
 
-                // ★ 5700K 補償：提升對比度和飽和度，消除霧感
-                // 當 progress 為 1 (5700K) 時，對比度到 108%，飽和度到 110%
-                contrast = 100 + (progress * 8);
-                saturate = 100 + (progress * 10);
+                // 5700K 補償
+                contrast = 100 + (sectionProgress * 8);
+                saturate = 100 + (sectionProgress * 10);
             }
 
+            display.innerText = `${k}K`;
+            
             // 應用 CSS Filter 到圖片本體
             mainImage.style.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%)`;
         }
 
         // 點擊標籤快速跳轉功能
-        function setTemp(val) {
-            slider.value = val;
+        function setTemp(targetK) {
+            // ★★★ 修改重點：反向將色溫對應回拉桿位置 (0, 50, 100)
+            if (targetK === 4000) slider.value = 0;
+            else if (targetK === 5000) slider.value = 50;
+            else if (targetK === 5700) slider.value = 100;
+            
             updateColor();
         }
 
