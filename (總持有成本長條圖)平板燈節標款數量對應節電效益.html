@@ -48,16 +48,26 @@
 </head>
 <body>
     
-    <!-- 增加 pl-24 內邊距以容納 Y 軸標籤 (pl-24 相當於 6rem / 96px) -->
-    <div id="chart-content" class="w-full p-4 sm:p-6 bg-white rounded-xl shadow-2xl pl-24"> 
+    <!-- 
+      修正說明：
+      1. 手機版使用 pl-12 (48px)，減少留白。
+      2. 桌機版 (sm:) 使用 pl-16 (64px)，確保空間足夠。
+    -->
+    <div id="chart-content" class="w-full p-4 sm:p-6 bg-white rounded-xl shadow-2xl pl-12 sm:pl-16"> 
         <h2 class="text-xl font-bold mb-4 text-gray-700">總持有成本長條圖 (NT\$)</h2>
         <div class="bar-container relative border-b border-l border-gray-300">
-            <!-- Y 軸標籤 (成本) -->
-            <!-- 標籤會從此容器左側定位，現在 chart-content 已經給了足夠的空間 -->
-            <div class="absolute inset-y-0 left-0 -translate-x-full pr-4 text-gray-500 text-xs sm:text-sm">
-                <div class="absolute top-0 right-0">6,500</div>
-                <div class="absolute top-1/3 right-0 -translate-y-1/2">4,333</div>
-                <div class="absolute bottom-0 right-0 translate-y-1/2">0</div>
+            
+            <!-- Y 軸標籤 (成本) 
+                 修正定位方式：
+                 1. w-12 / sm:w-16：設定固定寬度，與父層 padding 對應。
+                 2. -ml-12 / sm:-ml-16：使用負 margin 將標籤拉回 padding 區域。
+                 3. text-right：確保數字靠右對齊，緊貼軸線。
+            -->
+            <div class="absolute inset-y-0 left-0 w-12 -ml-12 sm:w-16 sm:-ml-16 pr-2 flex flex-col justify-between text-gray-500 text-xs sm:text-sm text-right">
+                <!-- 使用 flex justify-between 自動分佈上下 -->
+                <div class="-mt-2">6,500</div> <!-- 微調頂部對齊 -->
+                <div>4,333</div>
+                <div class="-mb-2">0</div> <!-- 微調底部對齊 -->
             </div>
 
             <!-- 長條圖 -->
