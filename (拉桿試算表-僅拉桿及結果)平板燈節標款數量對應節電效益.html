@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>淨獲利計算器</title>
+    <!-- 載入 Tailwind CSS (必要) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-green': '#10b981',
+                        'secondary-blue': '#3b82f6',
+                        'light-red': '#f87171',
+                        'light-yellow': '#fbbf24', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 確保滑桿的 accent color 在所有瀏覽器中都使用 light-red */
+        .accent-light-red {
+            accent-color: #f87171; 
+        }
+        .info-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+         /* 確保 body 內部沒有額外的 padding/margin，方便 iframe 填滿 */
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: transparent; 
+        }
+    </style>
+</head>
+<body>
+    <div id="calculator-content" class="w-full p-4 sm:p-6">
+        
+        <!-- Quantity Slider -->
+        <div class="bg-white rounded-xl shadow-md p-4 mb-6">
+            <p class="text-sm font-semibold text-gray-700 mb-2">預計更換數量: <span id="quantity-display" class="text-xl text-light-red font-bold">50 盞</span></p>
+            <input type="range" id="quantity-slider" min="1" max="200" value="50" step="1" 
+                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-light-red">
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <span>1盞</span>
+                <span>200盞</span>
+            </div>
+        </div>
+
+        <!-- 卡片 3: 淨獲利金額 (幫客戶賺錢) -->
+        <div class="info-card p-6 rounded-xl border-4 border-light-red/50 bg-light-red/10 flex flex-col justify-center items-center text-center shadow-lg h-full">
+            <p class="text-lg font-medium text-gray-800">5年保固期內 金鍏幫您賺</p>
+            <p class="text-4xl font-extrabold text-light-red mt-3" id="net-profit-total">NT$ 136,250</p>
+            <p class="text-sm text-gray-800 mt-3" id="profit-breakdown">
+                (單盞淨賺 NT$ 2,725 × 50 盞)
+            </p>
+            <!-- NEW: Added formula and selling point text -->
+            <p class="text-sm font-medium text-gray-600 mt-2">
+                （總節省 − 初始差價）
+            </p>
+            <p class="text-sm font-bold text-gray-800 mt-3">
+                金鍏優質燈具 5年超長保固+超省電+零換修成本 幫您 <span class="text-light-red">實賺</span> 回來的高額回報！
+            </p>
+            <!-- 隱藏的單盞淨獲利值 -->
+            <div id="net-profit-per-unit" class="hidden">2725</div>
+        </div>
+        
+    </div>
+
+    <script>
+        // --- 核心數據 (必須複製到此檔案，以確保獨立計算) ---
+        const productData = [
+            // 金鍏平板燈 (TCO: 2975)
+            { name: "金鍏LED平板燈 (21W)", initial: 1400, electricity: 1575, repair: 0 },
+            // T5 螢光燈管 4支/組 (TCO: 6350)
+            { name: "格柵燈(T5螢光燈管*4) (64W)", initial: 750, electricity: 4800, repair: 800 }, 
+        ];
+
+        let netProfitPerUnit = 0;
+
+        // Function to update the profit display based on the slider
+        function updateProfitDisplay(quantity) {
+            const profitPerUnit = netProfitPerUnit;
+            const totalProfit = profitPerUnit * quantity;
+            
+            document.getElementById('quantity-display').textContent = `${quantity.toLocaleString()} 盞`;
+            document.getElementById('net-profit-total').textContent = `NT$ ${totalProfit.toLocaleString()}`;
+            document.getElementById('profit-breakdown').innerHTML = `(單盞淨賺 NT$ ${profitPerUnit.toLocaleString()} × ${quantity.toLocaleString()} 盞)`;
+        }
+
+        // Calculate the savings once on load
+        function calculateSavings() {
+            const goldwell = productData[0];
+            const t5 = productData[1]; 
+            
+            const goldwellTotal = goldwell.initial + goldwell.electricity + goldwell.repair; // 2975
+            const t5TCO = t5.initial + t5.electricity + t5.repair; // 6350
+
+            const totalSaving = t5TCO - goldwellTotal; // 3375
+            const initialGap = goldwell.initial - t5.initial; // 650
+            const netProfit = totalSaving - initialGap; // 2725
+            
+            // Store per unit net profit (2725)
+            netProfitPerUnit = netProfit; 
+            document.getElementById('net-profit-per-unit').textContent = netProfit;
+            
+            // Initialize display with default quantity (50)
+            const initialQuantity = parseInt(document.getElementById('quantity-slider').value);
+            updateProfitDisplay(initialQuantity);
+        }
+
+        window.addEventListener('load', function() {
+            calculateSavings(); 
+
+            // Add event listener for the slider
+            const slider = document.getElementById('quantity-slider');
+            if (slider) {
+                slider.addEventListener('input', (e) => {
+                    updateProfitDisplay(parseInt(e.target.value));
+                });
+            }
+        });
+    </script>
+</body>
+</html>
