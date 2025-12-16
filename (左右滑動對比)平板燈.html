@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  /* 重置瀏覽器預設邊距，確保 iframe 內滿版顯示 */
+  body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+  
+  /* 容器設定：在 iframe 裡我們讓它置中並自適應 */
+  .gw-slider-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;      /* 最大寬度 */
+    aspect-ratio: 4/3;     /* 鎖定比例 */
+    margin: 0 auto;        /* 水平置中 */
+    cursor: col-resize;
+    font-family: "Microsoft JhengHei", sans-serif;
+    user-select: none;
+    /* 這裡不需要邊框，因為 iframe 外面通常會有 */
+  }
+
+  .gw-slider-container img {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block; pointer-events: none;
+  }
+
+  .gw-overlay {
+    position: absolute; top: 0; left: 0;
+    width: 50%; height: 100%;
+    overflow: hidden; z-index: 10;
+    border-right: 2px solid white;
+    will-change: width;
+  }
+
+  /* 強制圖片對齊機制 */
+  .gw-overlay-img {
+    width: 100vw !important; /* 在 iframe 模式下，直接用視窗寬度最穩 */
+    max-width: 800px !important; /* 但不超過最大限制 */
+    height: 100%;
+  }
+
+  /* 把手與標籤 */
+  .gw-handle {
+    position: absolute; top: 50%; right: -15px;
+    width: 30px; height: 30px;
+    background: #fff; border-radius: 50%;
+    z-index: 20; transform: translateY(-50%);
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 0 5px rgba(0,0,0,0.6); pointer-events: none;
+  }
+  .gw-handle::after { content: '< >'; font-size: 12px; font-weight: bold; color: #333; }
+  
+  .gw-label {
+    position: absolute; top: 20px;
+    background-color: rgba(0, 0, 0, 0.6); color: white;
+    padding: 6px 12px; border-radius: 4px;
+    font-size: 14px; font-weight: bold; pointer-events: none; white-space: nowrap;
+  }
+  .gw-label-left { left: 20px; z-index: 15; }
+  .gw-label-right { right: 20px; z-index: 5; }
+</style>
+</head>
+<body>
+
+<div class="gw-slider-container" id="gwContainer">
+  <img src="https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/金鍏平板燈_GW555.jpg" alt="金鍏平板燈">
+  <span class="gw-label gw-label-right">金鍏平板燈 (明亮)</span>
+
+  <div class="gw-overlay" id="gwOverlay">
+    <img src="https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/市售平板燈頻閃光衰.webp" 
+         alt="市售平板燈" 
+         class="gw-overlay-img" id="gwOverlayImg">
+    <span class="gw-label gw-label-left">市售平板燈 (頻閃)</span>
+    <div class="gw-handle"></div>
+  </div>
+</div>
+
+<script>
+  var container = document.getElementById('gwContainer');
+  var overlay = document.getElementById('gwOverlay');
+  var overlayImg = document.getElementById('gwOverlayImg');
+
+  function move(x) {
+    var rect = container.getBoundingClientRect();
+    var posX = x - rect.left;
+    if (posX < 0) posX = 0;
+    if (posX > rect.width) posX = rect.width;
+    overlay.style.width = posX + 'px';
+  }
+
+  function syncWidth() {
+    // 確保遮罩內的圖片寬度永遠等於容器寬度
+    if(container.offsetWidth > 0) {
+       overlayImg.style.width = container.offsetWidth + 'px';
+    }
+  }
+
+  // 事件監聽
+  container.addEventListener('mousemove', function(e) { move(e.clientX); });
+  container.addEventListener('touchmove', function(e) { move(e.touches[0].clientX); });
+  
+  window.addEventListener('resize', syncWidth);
+  window.addEventListener('load', syncWidth);
+  // 立即執行
+  syncWidth();
+</script>
+
+</body>
+</html>
