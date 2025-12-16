@@ -4,26 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  /* 重置瀏覽器預設邊距，確保 iframe 內滿版顯示 */
+  /* 歸零設定，確保滿版 */
   body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
   
-  /* 容器設定：在 iframe 裡我們讓它置中並自適應 */
   .gw-slider-container {
     position: relative;
     width: 100%;
-    max-width: 1200px;      /* 最大寬度 */
-    aspect-ratio: 16/9;     /* 照片比例 */
-    margin: 0 auto;        /* 水平置中 */
+    /* 這裡不用設 max-width，因為外層 iframe 會限制 */
+    height: 100%; /* 跟隨 iframe 高度 */
+    margin: 0;
     cursor: col-resize;
-    font-family: "Microsoft JhengHei", sans-serif;
     user-select: none;
-    /* 這裡不需要邊框，因為 iframe 外面通常會有 */
   }
 
   .gw-slider-container img {
     position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
-    object-fit: cover;
+    object-fit: cover; /* 確保填滿 */
     display: block; pointer-events: none;
   }
 
@@ -35,14 +32,14 @@
     will-change: width;
   }
 
-  /* 強制圖片對齊機制 */
+  /* 【關鍵修改】這裡我們不寫死寬度，交給 JS 控制 */
   .gw-overlay-img {
-    width: 100vw !important; /* 在 iframe 模式下，直接用視窗寬度最穩 */
-    max-width: 1200px !important; /* 但不超過最大限制 */
     height: 100%;
+    max-width: none !important; /* 解除限制 */
+    /* width 由 JS 動態設定 */
   }
 
-  /* 把手與標籤 */
+  /* 標籤與把手樣式 */
   .gw-handle {
     position: absolute; top: 50%; right: -15px;
     width: 30px; height: 30px;
@@ -57,7 +54,7 @@
     position: absolute; top: 20px;
     background-color: rgba(0, 0, 0, 0.6); color: white;
     padding: 6px 12px; border-radius: 4px;
-    font-size: 14px; font-weight: bold; pointer-events: none; white-space: nowrap;
+    font-size: 14px; font-weight: bold; pointer-events: none; white-space: nowrap; font-family: "Microsoft JhengHei", sans-serif;
   }
   .gw-label-left { left: 20px; z-index: 15; }
   .gw-label-right { right: 20px; z-index: 5; }
@@ -83,6 +80,13 @@
   var overlay = document.getElementById('gwOverlay');
   var overlayImg = document.getElementById('gwOverlayImg');
 
+  // 【核心功能】讓左圖寬度永遠等於容器寬度 (像素級對齊)
+  function syncImageWidth() {
+    if(container.offsetWidth > 0) {
+       overlayImg.style.width = container.offsetWidth + 'px';
+    }
+  }
+
   function move(x) {
     var rect = container.getBoundingClientRect();
     var posX = x - rect.left;
@@ -91,21 +95,16 @@
     overlay.style.width = posX + 'px';
   }
 
-  function syncWidth() {
-    // 確保遮罩內的圖片寬度永遠等於容器寬度
-    if(container.offsetWidth > 0) {
-       overlayImg.style.width = container.offsetWidth + 'px';
-    }
-  }
-
-  // 事件監聽
+  // 監聽各種事件
   container.addEventListener('mousemove', function(e) { move(e.clientX); });
   container.addEventListener('touchmove', function(e) { move(e.touches[0].clientX); });
   
-  window.addEventListener('resize', syncWidth);
-  window.addEventListener('load', syncWidth);
+  // 當視窗大小改變 (RWD) 時，重新對齊
+  window.addEventListener('resize', syncImageWidth);
+  // 載入完成時對齊
+  window.addEventListener('load', syncImageWidth);
   // 立即執行
-  syncWidth();
+  syncImageWidth();
 </script>
 
 </body>
