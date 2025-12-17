@@ -143,7 +143,7 @@
         if(panels.length === 0) return;
 
         panels.forEach((panel) => {
-          panel.addEventListener("click", () => {
+          panel.addEventListener("mouseenter", () => {
             // 移除所有 active 狀態
             removeActiveClasses();
             // 為被點擊的項目加上 active
