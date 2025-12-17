@@ -11,23 +11,22 @@
         box-sizing: border-box;
       }
 
-      /* [SOP 規範] 歸零設定與滿版適應 */
+      /* [SOP 規範] 歸零設定 */
       html, body {
         margin: 0;
         padding: 0;
         width: 100%;
         height: 100%;
-        overflow: hidden; /* 防止滾動條出現 */
-        background-color: transparent; /* [SOP 規範] 背景透明化 */
+        overflow: hidden;
+        background-color: transparent;
         font-family: "Noto Sans TC", sans-serif;
       }
 
-      /* [SOP 規範] 主容器滿版 */
       .container {
         display: flex;
         width: 100%;
         height: 100%;
-        padding: 10px; /* 保留少許內距以免貼邊 */
+        padding: 0; /* 移除外圍內距以爭取最大空間 */
       }
 
       .panel {
@@ -38,30 +37,30 @@
         border-radius: 15px;
         color: #fff;
         cursor: pointer;
-        flex: 1;
-        margin: 0 5px; /* 調整間距以適應 iframe */
+        /* [修正重點] 電腦版顯示修正 */
+        flex: 0.5; /* 預設佔比縮小，讓更多張圖能塞進去 */
+        min-width: 0; /* 關鍵：允許 flex 子元素無限縮小，防止溢出被切掉 */
+        margin: 0 5px;
         position: relative;
         transition: flex 0.7s cubic-bezier(0.05, 0.6, 0.4, 0.9);
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
         padding: 20px;
-        /* [SOP 規範] 手機操作優化：防止選取文字 */
-        user-select: none; 
+        user-select: none;
         -webkit-user-select: none;
       }
 
       .panel.active {
-        flex: 5; /* 稍微降低展開比例，避免在小螢幕 iframe 過擠 */
+        flex: 5; /* 展開時佔比加大，強化動畫感 */
       }
 
       .panel h3 {
         font-size: 24px;
         margin: 0;
         opacity: 0;
-        transition: opacity 0.3s ease-in 0.4s;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-        white-space: nowrap;
+        white-space: nowrap; /* 不換行 */
         transform: translateY(20px);
         transition: all 0.4s ease-in 0.4s;
       }
@@ -72,62 +71,44 @@
       }
 
       /* 手機版響應式調整 */
-      @media (max-width: 480px) {
+      @media (max-width: 768px) {
         .container {
-          flex-direction: column;
+          flex-direction: column; /* 改為垂直排列 */
         }
 
         .panel {
           width: 100%;
-          margin: 5px 0;
+          margin: 4px 0;
           border-radius: 10px;
+          flex: 1; /* 手機版預設高度均分 */
+        }
+        
+        /* 手機版展開高度比例 */
+        .panel.active {
+            flex: 8; /* 展開後的佔比要很大，才看得到圖 */
         }
 
         .panel h3 {
-          font-size: 18px;
-        }
-        
-        /* 手機版展開比例縮小，確保其他項目還看得到 */
-        .panel.active {
-            flex: 3;
+          font-size: 16px;
         }
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <div
-        class="panel active"
-        style="background-image: url('https://images.unsplash.com/photo-1558979158-65a1eaa08691?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"
-      >
+      <div class="panel active" style="background-image: url('https://images.unsplash.com/photo-1558979158-65a1eaa08691?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
         <h3>探索世界 - 範例標題 1</h3>
       </div>
-
-      <div
-        class="panel"
-        style="background-image: url('https://images.unsplash.com/photo-1572276596237-5db2c3e16c5d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"
-      >
+      <div class="panel" style="background-image: url('https://images.unsplash.com/photo-1572276596237-5db2c3e16c5d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
         <h3>壯麗森林 - 範例標題 2</h3>
       </div>
-
-      <div
-        class="panel"
-        style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1353&q=80');"
-      >
+      <div class="panel" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1353&q=80');">
         <h3>陽光沙灘 - 範例標題 3</h3>
       </div>
-
-      <div
-        class="panel"
-        style="background-image: url('https://images.unsplash.com/photo-1551009175-8a68da93d5f9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80');"
-      >
+      <div class="panel" style="background-image: url('https://images.unsplash.com/photo-1551009175-8a68da93d5f9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80');">
         <h3>城市夜景 - 範例標題 4</h3>
       </div>
-
-      <div
-        class="panel"
-        style="background-image: url('https://images.unsplash.com/photo-1549880338-65ddcdfd017b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"
-      >
+      <div class="panel" style="background-image: url('https://images.unsplash.com/photo-1549880338-65ddcdfd017b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
         <h3>巍峨高山 - 範例標題 5</h3>
       </div>
     </div>
@@ -135,18 +116,12 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const panels = document.querySelectorAll(".panel");
-
-        if (panels.length === 0) {
-          console.error("錯誤：找不到 .panel 元素");
-        }
-
         panels.forEach((panel) => {
           panel.addEventListener("click", () => {
             removeActiveClasses();
             panel.classList.add("active");
           });
         });
-
         function removeActiveClasses() {
           panels.forEach((panel) => {
             panel.classList.remove("active");
