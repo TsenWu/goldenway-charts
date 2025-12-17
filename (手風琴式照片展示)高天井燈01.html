@@ -11,7 +11,7 @@
         box-sizing: border-box;
       }
 
-      /* [SOP 規範] 歸零設定 */
+      /* [SOP 規範] 歸零與滿版 */
       html, body {
         margin: 0;
         padding: 0;
@@ -26,7 +26,8 @@
         display: flex;
         width: 100%;
         height: 100%;
-        padding: 0; /* 移除外圍內距以爭取最大空間 */
+        /* 稍微留一點點隙縫，避免貼死邊緣 */
+        padding: 0 5px; 
       }
 
       .panel {
@@ -34,14 +35,14 @@
         background-position: center;
         background-repeat: no-repeat;
         height: 100%;
-        border-radius: 15px;
+        border-radius: 20px; /* 圓角加大，視覺更圓潤 */
         color: #fff;
         cursor: pointer;
-        /* [修正重點] 電腦版顯示修正 */
-        flex: 0.5; /* 預設佔比縮小，讓更多張圖能塞進去 */
-        min-width: 0; /* 關鍵：允許 flex 子元素無限縮小，防止溢出被切掉 */
-        margin: 0 5px;
+        /* [修正重點] 電腦版動畫核心 */
+        flex: 1; /* 讓未選中的圖片保持可見寬度，不要縮太小 */
+        margin: 0 8px; /* 增加圖片間距，增加呼吸感 */
         position: relative;
+        /* 平滑過渡效果 */
         transition: flex 0.7s cubic-bezier(0.05, 0.6, 0.4, 0.9);
         display: flex;
         flex-direction: column;
@@ -49,18 +50,21 @@
         padding: 20px;
         user-select: none;
         -webkit-user-select: none;
+        /* 加上淡淡的遮罩讓文字清楚，未選中時稍微變暗 */
+        box-shadow: inset 0 -60px 60px -20px rgba(0,0,0,0.5); 
       }
 
+      /* [修正重點] 選中時的霸佔比例 */
       .panel.active {
-        flex: 5; /* 展開時佔比加大，強化動畫感 */
+        flex: 12; /* 1 vs 12 的比例，保證展開寬度極大 */
       }
 
       .panel h3 {
-        font-size: 24px;
+        font-size: 28px; /* 字體加大 */
         margin: 0;
         opacity: 0;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-        white-space: nowrap; /* 不換行 */
+        white-space: nowrap;
         transform: translateY(20px);
         transition: all 0.4s ease-in 0.4s;
       }
@@ -70,26 +74,27 @@
         transform: translateY(0);
       }
 
-      /* 手機版響應式調整 */
+      /* 手機版設定 (維持您滿意的垂直堆疊效果) */
       @media (max-width: 768px) {
         .container {
-          flex-direction: column; /* 改為垂直排列 */
+          flex-direction: column;
+          padding: 5px;
         }
 
         .panel {
           width: 100%;
           margin: 4px 0;
-          border-radius: 10px;
-          flex: 1; /* 手機版預設高度均分 */
+          border-radius: 12px;
+          flex: 1; 
         }
         
-        /* 手機版展開高度比例 */
+        /* 手機版展開比例 */
         .panel.active {
-            flex: 8; /* 展開後的佔比要很大，才看得到圖 */
+            flex: 10; 
         }
 
         .panel h3 {
-          font-size: 16px;
+          font-size: 18px;
         }
       }
     </style>
