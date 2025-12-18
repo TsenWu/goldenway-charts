@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>互動式圖片展示</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap");
+
+      * {
+        box-sizing: border-box;
+      }
+
+      /* [SOP 規範] 歸零與滿版 */
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: transparent;
+        font-family: "Noto Sans TC", sans-serif;
+      }
+
+      .container {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        padding: 15px 10px; /* 上下、左右都跟照片區留一點縫隙 */
+      }
+
+      .panel {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100%;
+        border-radius: 20px;
+        color: #fff;
+        cursor: pointer;
+        
+        /* === 核心修正區 Start === */
+        
+        /* 1. 設定極小的 flex 值，讓未選中時變成細長條 */
+        flex: 0.5; 
+        
+        /* 2. [關鍵] 允許壓縮至 0，無視內容寬度 */
+        min-width: 0; 
+        
+        /* 3. [關鍵] 內容溢出時隱藏，避免文字撐開格子 */
+        overflow: hidden; 
+        
+        /* === 核心修正區 End === */
+
+        margin: 0 5px; /* 圖片間距 */
+        position: relative;
+        transition: flex 0.7s cubic-bezier(0.05, 0.6, 0.4, 0.9); /* 動畫速度 */
+        
+        /* 內部排版 */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 20px;
+        
+        /* 禁止選取文字 */
+        user-select: none;
+        -webkit-user-select: none;
+        
+        /* 遮罩，讓文字清楚一點 */
+        box-shadow: inset 0 -60px 60px -20px rgba(0,0,0,0.5);
+      }
+
+      /* 選中時的狀態：霸佔 5 倍寬度 */
+      .panel.active {
+        flex: 5;
+      }
+
+      .panel h3 {
+        font-size: 24px;
+        margin: 0;
+        opacity: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        white-space: nowrap; /* 強制文字不換行 */
+        transform: translateY(20px);
+        transition: opacity 0.3s ease-in 0.4s, transform 0.4s ease-in 0.4s;
+      }
+
+      /* 只有當 active 時文字才出現 */
+      .panel.active h3 {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* === 手機版 RWD (維持垂直堆疊) === */
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .panel {
+          width: 100%;
+          margin: 4px 0;
+          border-radius: 12px;
+          flex: 1; /* 手機版預設均分高度 */
+        }
+        
+        /* 手機版展開高度 */
+        .panel.active {
+            flex: 8; 
+        }
+
+        .panel h3 {
+          font-size: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="panel active" style="background-image: url('https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-合作金庫國際會議中心.jpg');">
+        <h3>合作金庫國際會議中心</h3>
+      </div>
+      <div class="panel" style="background-image: url('https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-好市多桃園中壢店.jpg');">
+        <h3>好市多(桃園中壢店)</h3>
+      </div>
+      <div class="panel" style="background-image: url('https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-台南市玉井綜合體育館.jpg');">
+        <h3>台南市玉井綜合體育館</h3>
+      </div>
+      <div class="panel" style="background-image: url('https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-花蓮化仁國中體育館.jpg');">
+        <h3>花蓮化仁國中體育館</h3>
+      </div>
+      <div class="panel" style="background-image: url('https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-南投營北國中大禮堂.jpg');">
+        <h3>南投營北國中大禮堂</h3>
+      </div>
+      <div class="panel" style="background-image: url('https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-埔里國中體育館.jpg');">
+        <h3>南投埔里國中體育館</h3>
+      </div>
+      <div class="panel" style="background-image: url('https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-高雄龍肚國中體育館.jpg');">
+        <h3>高雄龍肚國中體育館</h3>
+      </div>
+      <div class="panel" style="background-image: url('https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-新竹日上科技.jpg');">
+        <h3>新竹日上科技</h3>
+      </div>
+      <div class="panel" style="background-image: url('https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-嘉義縣嘉惠發電廠.jpg');">
+        <h3>嘉義縣嘉惠發電廠</h3>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const panels = document.querySelectorAll(".panel");
+
+        if(panels.length === 0) return;
+
+        panels.forEach((panel) => {
+          panel.addEventListener("mouseenter", () => {
+            // 移除所有 active 狀態
+            removeActiveClasses();
+            // 為被點擊的項目加上 active
+            panel.classList.add("active");
+          });
+        });
+
+        function removeActiveClasses() {
+          panels.forEach((panel) => {
+            panel.classList.remove("active");
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
