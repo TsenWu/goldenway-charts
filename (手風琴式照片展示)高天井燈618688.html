@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>質感視差網格展示</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
 
         :root {
             --trans-duration: 750ms;
@@ -23,7 +23,6 @@
         /* --- 電腦版：使用 Grid 系統 --- */
         .gallery-container {
             display: grid;
-            /* 修改：改為 9 欄以容納所有照片 */
             grid-template-columns: repeat(9, 1fr);
             gap: 2px;
             height: 100vh;
@@ -32,43 +31,37 @@
             transition: grid-template-columns var(--trans-duration) var(--ease-elastic);
         }
 
-        /* 電腦版 Hover 邏輯：擴充到 9 張卡片
-           當某張卡片被 Hover 時，它佔 10 份寬度 (10fr)，其他維持 1 份 (1fr)
-           總比例 = 10 + (8 * 1) = 18fr
+        /* 修改處：將原本 CSS :hover 的觸發方式，改為由 JS 控制的 data-active 屬性 
+           這樣我們可以透過 JS 加入「延遲」，避免滑鼠快速滑過時畫面亂跳
         */
-        .gallery-container:has(.card:nth-child(1):hover) { grid-template-columns: 10fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
-        .gallery-container:has(.card:nth-child(2):hover) { grid-template-columns: 1fr 10fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
-        .gallery-container:has(.card:nth-child(3):hover) { grid-template-columns: 1fr 1fr 10fr 1fr 1fr 1fr 1fr 1fr 1fr; }
-        .gallery-container:has(.card:nth-child(4):hover) { grid-template-columns: 1fr 1fr 1fr 10fr 1fr 1fr 1fr 1fr 1fr; }
-        .gallery-container:has(.card:nth-child(5):hover) { grid-template-columns: 1fr 1fr 1fr 1fr 10fr 1fr 1fr 1fr 1fr; }
-        .gallery-container:has(.card:nth-child(6):hover) { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 10fr 1fr 1fr 1fr; }
-        .gallery-container:has(.card:nth-child(7):hover) { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 10fr 1fr 1fr; }
-        .gallery-container:has(.card:nth-child(8):hover) { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 10fr 1fr; }
-        .gallery-container:has(.card:nth-child(9):hover) { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 10fr; }
+        .gallery-container[data-active="1"] { grid-template-columns: 10fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
+        .gallery-container[data-active="2"] { grid-template-columns: 1fr 10fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
+        .gallery-container[data-active="3"] { grid-template-columns: 1fr 1fr 10fr 1fr 1fr 1fr 1fr 1fr 1fr; }
+        .gallery-container[data-active="4"] { grid-template-columns: 1fr 1fr 1fr 10fr 1fr 1fr 1fr 1fr 1fr; }
+        .gallery-container[data-active="5"] { grid-template-columns: 1fr 1fr 1fr 1fr 10fr 1fr 1fr 1fr 1fr; }
+        .gallery-container[data-active="6"] { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 10fr 1fr 1fr 1fr; }
+        .gallery-container[data-active="7"] { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 10fr 1fr 1fr; }
+        .gallery-container[data-active="8"] { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 10fr 1fr; }
+        .gallery-container[data-active="9"] { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 10fr; }
 
         .card {
             position: relative;
             height: 100%;
             overflow: hidden;
             border-right: 1px solid rgba(0,0,0,0.5);
-            
-            /* 電腦版保留視差效果 */
             background-attachment: fixed;
             background-size: cover;
             background-position: center;
             cursor: pointer;
-            
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            
-            /* 3D 加速 */
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
             backface-visibility: hidden;
         }
 
-        /* --- 新增功能：未展開時的黑色遮罩 (Vignette Overlay) --- */
+        /* 未展開時的黑色遮罩 */
         .card::before {
             content: '';
             position: absolute;
@@ -76,20 +69,23 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* 這裡控制遮罩的顏色與濃度，目前設定為 40% 的黑色 */
             background: rgba(0, 0, 0, 0.4); 
-            z-index: 1; /* 確保在背景圖之上，但文字之下 */
-            transition: opacity 0.5s ease; /* 淡出動畫 */
-            opacity: 1; /* 預設顯示 */
-            pointer-events: none; /* 讓滑鼠事件能穿透到 card 本體 */
+            z-index: 1;
+            transition: opacity 0.5s ease;
+            opacity: 1;
+            pointer-events: none;
         }
-
-        /* 當卡片被 Hover (展開) 時，遮罩消失，照片變亮 */
+        
+        /* 修改處：配合 JS 邏輯，當這張卡片是 active 狀態時才移除遮罩 */
+        .card.is-active::before {
+            opacity: 0;
+        }
+        /* 保留原本 hover 效果作為輔助，讓反應稍微靈敏一點，但主要依賴 JS class */
         .card:hover::before {
             opacity: 0;
         }
 
-        /* 圖片設定區 - 更新為你的 9 張照片 */
+        /* 圖片設定區 */
         .card:nth-child(1) { background-image: url("https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-合作金庫國際會議中心.jpg"); }
         .card:nth-child(2) { background-image: url("https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-好市多桃園中壢店.jpg"); }
         .card:nth-child(3) { background-image: url("https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-台南市玉井綜合體育館.jpg"); }
@@ -100,7 +96,7 @@
         .card:nth-child(8) { background-image: url("https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-新竹日上科技.jpg"); }
         .card:nth-child(9) { background-image: url("https://cdn.jsdelivr.net/gh/TsenWu/goldenway-photos/風琴照/HBL618688-嘉義縣嘉惠發電廠.jpg"); }
 
-        /* 直式標題 */
+        /* 直式標題 (未展開) */
         .label-collapsed {
             position: absolute;
             top: 50%;
@@ -108,24 +104,23 @@
             writing-mode: vertical-rl; 
             text-orientation: upright;
             letter-spacing: 0.6rem;
-            /* 修改處：字體大小調小 */
-            font-size: 1.4rem;
-            /* 修改處：字重改為一般 */
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.95); /* 字體稍微亮一點 */
+            font-size: 1.4rem; 
+            font-weight: 400;  
+            color: rgba(255, 255, 255, 0.95);
             text-shadow: 0 4px 10px rgba(0,0,0,0.8);
             pointer-events: none;
             transition: opacity 0.3s ease, transform 0.5s ease;
             white-space: nowrap;
-            z-index: 2; /* 確保在黑色遮罩之上 */
+            z-index: 2;
         }
 
-        .card:hover .label-collapsed {
+        /* 修改處：配合 JS 邏輯 */
+        .card.is-active .label-collapsed {
             opacity: 0;
             transform: translateY(-40%);
         }
 
-        /* 詳細內容 */
+        /* 詳細內容 (展開後) */
         .content {
             padding: 2rem;
             color: white;
@@ -138,13 +133,13 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            z-index: 2; /* 確保在遮罩層之上 (雖然遮罩hover時會消失，但以防萬一) */
+            z-index: 2;
         }
 
         .content h2 {
-            font-size: 1.5rem; /* 這裡調整展開後標題大小，原本是 2rem */
+            font-size: 1.5rem;
             margin: 0 0 0.5rem 0;
-            font-weight: 500; /* 這裡設定粗細 */
+            font-weight: 500;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             white-space: nowrap;
         }
@@ -156,7 +151,8 @@
             white-space: nowrap;
         }
 
-        .card:hover .content {
+        /* 修改處：配合 JS 邏輯 */
+        .card.is-active .content {
             transform: translateY(0);
             opacity: 1;
             transition-delay: 0.1s;
@@ -179,13 +175,18 @@
                 transition: flex var(--trans-duration) var(--ease-elastic);
             }
             
-            /* 手機版是否要保留遮罩？建議保留，但可以淡一點 */
             .card::before {
                 background: rgba(0, 0, 0, 0.3); 
             }
 
+            /* 手機版保留 CSS Hover 即可，因為手指點擊通常是明確的 */
             .card:hover {
-                flex: 8; /* 9張照片比較擠，展開比例調大一點 */
+                flex: 8; 
+            }
+            
+            /* 手機版 JS 輔助 (兼容性) */
+            .card.is-active {
+                flex: 8;
             }
 
             .label-collapsed {
@@ -287,5 +288,57 @@
         </div>
     </div>
 
+    <!-- 
+      新增 JS 腳本：
+      控制 Hover 的「防手震」邏輯。
+      只有當滑鼠停留在卡片上超過 150ms，才會觸發展開。
+    -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.gallery-container');
+            const cards = document.querySelectorAll('.card');
+            let hoverTimer = null;
+            
+            // 偵測是否為手機/觸控裝置 (簡單判斷)
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            cards.forEach((card, index) => {
+                // 1. 滑鼠移入
+                card.addEventListener('mouseenter', () => {
+                    if (isTouchDevice && window.innerWidth <= 768) return; // 手機版用 CSS 原生 flex 即可
+
+                    // 清除之前的計時器 (如果還沒觸發)
+                    if (hoverTimer) clearTimeout(hoverTimer);
+
+                    // 設定新的計時器：150毫秒後才真正切換
+                    hoverTimer = setTimeout(() => {
+                        // 設定 Container 的狀態 (控制 Grid 比例)
+                        container.setAttribute('data-active', index + 1);
+                        
+                        // 設定個別 Card 的狀態 (控制文字顯示、遮罩)
+                        cards.forEach(c => c.classList.remove('is-active'));
+                        card.classList.add('is-active');
+                    }, 150); // 這裡的數字越大，反應越慢但越穩；建議 100~200 之間
+                });
+
+                // 2. 滑鼠移出 (針對個別卡片)
+                card.addEventListener('mouseleave', () => {
+                     // 如果在等待觸發的期間移出了，就馬上取消，什麼事都不會發生
+                    if (hoverTimer) clearTimeout(hoverTimer);
+                });
+            });
+
+            // 3. 滑鼠離開整個區域
+            container.addEventListener('mouseleave', () => {
+                if (isTouchDevice && window.innerWidth <= 768) return;
+
+                if (hoverTimer) clearTimeout(hoverTimer);
+                
+                // 恢復原狀 (所有格子均分)
+                container.removeAttribute('data-active');
+                cards.forEach(c => c.classList.remove('is-active'));
+            });
+        });
+    </script>
 </body>
 </html>
