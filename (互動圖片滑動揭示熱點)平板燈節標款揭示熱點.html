@@ -124,7 +124,7 @@
   }
 
   @media (max-width: 768px) {
-    .mobile-view { display: flex; flex-direction: column; gap: 25px; } /* 增加卡片間距 */
+    .mobile-view { display: flex; flex-direction: column; gap: 15px; } /* 增加卡片間距 */
     .desktop-view { display: none !important; }
     html, body { overflow-y: auto; height: auto; }
   }
@@ -134,7 +134,7 @@
     /* [重點] 移除 overflow: hidden，讓文字標籤可以稍微凸出去 */
     overflow: visible; 
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    border-radius: 16px;
+    border-radius: 8px;
   }
 
   .section-title {
@@ -144,7 +144,7 @@
     backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     color: #fff; font-weight: bold; font-size: 1.1rem; letter-spacing: 1px;
     /* 標題自己負責圓角 */
-    border-radius: 16px 16px 0 0; 
+    border-radius: 8px 8px 0 0; 
   }
 
   .image-container { position: relative; width: 100%; line-height: 0; }
@@ -159,7 +159,7 @@
     object-position: center; /* 圖片居中 */
     
     /* 圖片自己負責圓角 */
-    border-radius: 16px; 
+    border-radius: 8px; 
   }
 
   .hotspot-m { position: absolute; width: 0; height: 0; z-index: 10; }
