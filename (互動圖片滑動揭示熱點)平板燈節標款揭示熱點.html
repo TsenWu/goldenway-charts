@@ -144,7 +144,9 @@
   .mobile-view {
     display: none; 
     width: 100%;
-    padding: 0 5px; 
+    /* [修正重點] 加大左右 Padding */
+    /* 從 5px 改為 20px，創造左右安全緩衝區，避免文字標籤被切掉 */
+    padding: 0 20px; 
   }
 
   @media (max-width: 768px) {
