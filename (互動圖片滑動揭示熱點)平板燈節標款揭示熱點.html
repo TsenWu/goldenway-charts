@@ -5,14 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>產品構造透視互動展示</title>
 <style>
+  /* [修正] 新增全域盒模型設定，解決右下角標題被截斷的問題 */
+  * {
+    box-sizing: border-box;
+  }
+
   /* [SOP] 歸零與基礎設定 */
   html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    /* 注意：因為手機版內容較長，這裡設 auto 允許內容自然撐開，
-       但我們會透過後台 Iframe 的高度來限制它 */
     overflow: hidden; 
     background-color: transparent; 
     font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
@@ -29,7 +32,7 @@
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
   }
 
-  /* 通用熱點樣式 (桌機手機共用) */
+  /* 通用熱點樣式 */
   .dot {
     position: absolute;
     width: 16px;
@@ -39,7 +42,7 @@
     box-shadow: 0 0 0 4px var(--dot-halo);
     animation: pulse 2s infinite;
     z-index: 20;
-    top: 50%; left: 50%; /* 預設置中定位 */
+    top: 50%; left: 50%; 
     transform: translate(-50%, -50%);
   }
   @keyframes pulse {
@@ -65,10 +68,9 @@
 
   /* =========================================
      桌機版樣式 (Desktop Styles) 
-     當螢幕 > 768px 時生效
      ========================================= */
   .desktop-view {
-    display: none; /* 預設隱藏 */
+    display: none; 
     position: relative;
     width: 100%;
     height: 100%;
@@ -97,7 +99,6 @@
     border-right: 3px solid var(--handle-color);
     background-color: #fff;
   }
-  /* 強制左層圖片寬度與容器一致 (JS控制) */
   .layer-left img { width: 100vw; max-width: none; }
 
   /* 滑桿把手 */
@@ -116,10 +117,12 @@
   .hotspot-pc { position: absolute; z-index: 15; display: flex; align-items: center; white-space: nowrap; }
   .hotspot-pc .dot { position: relative; top: auto; left: auto; transform: none; flex-shrink: 0; }
   .hotspot-pc .label {
-    position: absolute; left: 30px; top: 50%; transform: translateY(-50%);
+    position: absolute; left: 30px; /* 預設：文字在右邊 */
+    top: 50%; transform: translateY(-50%);
     width: max-content; max-width: 280px; white-space: normal;
     opacity: 0; animation: fadeIn 0.5s ease-out 0.5s forwards;
   }
+  /* 只有加上 pos-left 類別時，文字才會跑到左邊 */
   .hotspot-pc.pos-left .label { left: auto; right: 30px; }
   
   @keyframes fadeIn {
@@ -137,19 +140,16 @@
 
   /* =========================================
      手機版樣式 (Mobile Styles) 
-     當螢幕 <= 768px 時生效
      ========================================= */
   .mobile-view {
-    display: none; /* 預設隱藏 */
+    display: none; 
     width: 100%;
-    padding: 0 5px; /* 稍微留邊 */
-    box-sizing: border-box;
+    padding: 0 5px; 
   }
 
   @media (max-width: 768px) {
     .mobile-view { display: flex; flex-direction: column; gap: 15px; }
     .desktop-view { display: none !important; }
-    /* 手機版允許捲動，避免內容被切掉 (雖然 Iframe 會設高度，但雙重保險) */
     html, body { overflow-y: auto; height: auto; }
   }
 
@@ -169,20 +169,18 @@
   .image-container { position: relative; width: 100%; line-height: 0; }
   .image-container img { width: 100%; height: auto; display: block; }
 
-  /* 手機版熱點 */
+  /* 手機版熱點樣式 */
   .hotspot-m { position: absolute; width: 0; height: 0; z-index: 10; }
   .hotspot-m .label {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: max-content; max-width: 160px;
     z-index: 15; font-size: 12px; font-weight: 600;
   }
-  /* 靠右顯示 */
   .hotspot-m.layout-right .label { left: 20px; }
   .hotspot-m.layout-right .label::before {
     content: ''; position: absolute; top: 50%; left: -6px; transform: translateY(-50%);
     border-width: 6px 6px 6px 0; border-style: solid; border-color: transparent var(--glass-border) transparent transparent;
   }
-  /* 靠左顯示 */
   .hotspot-m.layout-left .label { right: 20px; left: auto; }
   .hotspot-m.layout-left .label::before {
     content: ''; position: absolute; top: 50%; right: -6px; transform: translateY(-50%);
@@ -197,10 +195,11 @@
     <div class="layer-right">
       <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/gw555_outside.jpg?v=688t6id" alt="燈板背面">
       
-      <div class="hotspot-pc" style="top: 35%; left: 65%;">
+      <div class="hotspot-pc pos-left" style="top: 35%; left: 55%;">
         <div class="dot"></div>
         <div class="label label-glass">二級迴路LED驅動器，PFC主動功因，漣波&lt;3%幾乎無頻閃，驅動器效率高達91%，無頻閃、低光衰，照明更舒適。</div>
       </div>
+      
       <div class="hotspot-pc pos-left" style="top: 80%; left: 55%;">
         <div class="dot"></div>
         <div class="label label-glass">全金屬散熱背板，有效降低熱堆積，將耐用度提升至工業級標準，光源壽命可超越十年。</div>
@@ -210,10 +209,11 @@
     <div class="layer-left" id="overlayLayer">
       <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/gw555_inside.jpg?v=sj48qa" id="overlayImage" alt="燈罩內部">
       
-      <div class="hotspot-pc pos-left" style="top: 45%; left: 38%;">
+      <div class="hotspot-pc" style="top: 45%; left: 38%;">
         <div class="dot"></div>
         <div class="label label-glass">高規格LED晶粒搭配高階透鏡光學，專業直下式設計解決傳統側發光導光板容易老化泛黃的通病。</div>
       </div>
+      
       <div class="hotspot-pc" style="top: 75%; left: 35%;">
         <div class="dot"></div>
         <div class="label label-glass">高反射率<br>內層塗料</div>
@@ -233,7 +233,6 @@
       <div class="section-title">燈罩內部構造</div>
       <div class="image-container">
         <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/gw555_inside.jpg?v=sj48qa" alt="燈罩內部">
-        
         <div class="hotspot-m layout-right" style="top: 40%; left: 35%;">
           <div class="dot"></div>
           <div class="label label-glass"><strong>高透光學透鏡</strong><br>高規格LED晶粒搭配直下式設計，精準導光。</div>
@@ -249,8 +248,7 @@
       <div class="section-title">燈板背部細節</div>
       <div class="image-container">
         <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/gw555_outside.jpg?v=688t6id" alt="燈板背面">
-        
-        <div class="hotspot-m layout-left" style="top: 40%; left: 55%;">
+        <div class="hotspot-m layout-left" style="top: 40%; left: 50%;">
           <div class="dot"></div>
           <div class="label label-glass"><strong>二級迴路驅動器</strong><br>PFC主動功因，無頻閃低光衰。</div>
         </div>
@@ -269,17 +267,14 @@
   const overlayImage = document.getElementById('overlayImage');
 
   function initImageSize() {
-    if(container.offsetParent !== null) { // 只在顯示時計算
+    if(container.offsetParent !== null) { 
         const width = container.offsetWidth;
         overlayImage.style.width = width + 'px';
     }
   }
 
-  // 監聽 Resize 與載入
   window.addEventListener('resize', initImageSize);
   overlayImage.onload = initImageSize;
-  
-  // 定期檢查 (防止切換 display 時跑版)
   setInterval(initImageSize, 500);
 
   function updateSlider(clientX) {
@@ -291,22 +286,18 @@
     overlayLayer.style.width = percentage + '%';
   }
 
-  // 簡單滑鼠跟隨 (桌面)
   container.addEventListener('mousemove', (e) => {
-    // 只有在視窗寬度大於 768px 時才執行
     if (window.innerWidth > 768) {
        updateSlider(e.clientX);
     }
   });
   
-  // 點擊支援
   container.addEventListener('click', (e) => {
     if (window.innerWidth > 768) {
        updateSlider(e.clientX);
     }
   });
 
-  // 初次執行
   initImageSize();
 </script>
 
