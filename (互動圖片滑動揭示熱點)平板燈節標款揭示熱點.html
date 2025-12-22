@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>產品構造透視互動展示</title>
+<style>
+  /* [SOP] 歸零與基礎設定 */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    /* 注意：因為手機版內容較長，這裡設 auto 允許內容自然撐開，
+       但我們會透過後台 Iframe 的高度來限制它 */
+    overflow: hidden; 
+    background-color: transparent; 
+    font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
+  }
+
+  /* === 共用變數 === */
+  :root {
+    --handle-color: #ffffff;
+    --handle-line: #333333;
+    --dot-core: rgba(0, 0, 0, 0.85);
+    --dot-halo: rgba(255, 255, 255, 0.6);
+    --glass-bg: rgba(255, 255, 255, 0.25);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  /* 通用熱點樣式 (桌機手機共用) */
+  .dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: var(--dot-core);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px var(--dot-halo);
+    animation: pulse 2s infinite;
+    z-index: 20;
+    top: 50%; left: 50%; /* 預設置中定位 */
+    transform: translate(-50%, -50%);
+  }
+  @keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(0,0,0,0.7); }
+    70% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 10px rgba(0,0,0,0); }
+    100% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+  }
+  
+  .label-glass {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    color: #000;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+  }
+
+  /* =========================================
+     桌機版樣式 (Desktop Styles) 
+     當螢幕 > 768px 時生效
+     ========================================= */
+  .desktop-view {
+    display: none; /* 預設隱藏 */
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    user-select: none;
+    cursor: col-resize;
+  }
+
+  @media (min-width: 769px) {
+    .desktop-view { display: block; }
+    .mobile-view { display: none !important; }
+  }
+
+  .desktop-view img {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  .layer-right { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+  
+  .layer-left {
+    position: absolute; top: 0; left: 0; width: 50%; height: 100%;
+    overflow: hidden; z-index: 10;
+    border-right: 3px solid var(--handle-color);
+    background-color: #fff;
+  }
+  /* 強制左層圖片寬度與容器一致 (JS控制) */
+  .layer-left img { width: 100vw; max-width: none; }
+
+  /* 滑桿把手 */
+  .handle {
+    position: absolute; top: 50%; right: -20px;
+    width: 40px; height: 40px;
+    background: var(--handle-color);
+    border-radius: 50%; z-index: 20;
+    transform: translateY(-50%);
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+  .handle span { color: var(--handle-line); font-weight: bold; letter-spacing: -2px; }
+
+  /* 桌機版熱點 */
+  .hotspot-pc { position: absolute; z-index: 15; display: flex; align-items: center; white-space: nowrap; }
+  .hotspot-pc .dot { position: relative; top: auto; left: auto; transform: none; flex-shrink: 0; }
+  .hotspot-pc .label {
+    position: absolute; left: 30px; top: 50%; transform: translateY(-50%);
+    width: max-content; max-width: 280px; white-space: normal;
+    opacity: 0; animation: fadeIn 0.5s ease-out 0.5s forwards;
+  }
+  .hotspot-pc.pos-left .label { left: auto; right: 30px; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-50%) translateX(-5px); }
+    to { opacity: 1; transform: translateY(-50%) translateX(0); }
+  }
+
+  .caption-area {
+    position: absolute; bottom: 20px; width: 100%;
+    display: flex; justify-content: space-between; padding: 0 30px;
+    pointer-events: none; z-index: 30;
+  }
+  .caption { background: rgba(0,0,0,0.6); color: white; padding: 6px 12px; border-radius: 4px; font-size: 14px; }
+
+
+  /* =========================================
+     手機版樣式 (Mobile Styles) 
+     當螢幕 <= 768px 時生效
+     ========================================= */
+  .mobile-view {
+    display: none; /* 預設隱藏 */
+    width: 100%;
+    padding: 0 5px; /* 稍微留邊 */
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 768px) {
+    .mobile-view { display: flex; flex-direction: column; gap: 15px; }
+    .desktop-view { display: none !important; }
+    /* 手機版允許捲動，避免內容被切掉 (雖然 Iframe 會設高度，但雙重保險) */
+    html, body { overflow-y: auto; height: auto; }
+  }
+
+  .product-section {
+    background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06); position: relative;
+    width: 100%;
+  }
+  .section-title {
+    position: absolute; top: 0; left: 0; width: 100%; z-index: 5;
+    text-align: center; padding: 10px 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff; font-weight: bold; font-size: 1rem; letter-spacing: 1px;
+  }
+  .image-container { position: relative; width: 100%; line-height: 0; }
+  .image-container img { width: 100%; height: auto; display: block; }
+
+  /* 手機版熱點 */
+  .hotspot-m { position: absolute; width: 0; height: 0; z-index: 10; }
+  .hotspot-m .label {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: max-content; max-width: 160px;
+    z-index: 15; font-size: 12px; font-weight: 600;
+  }
+  /* 靠右顯示 */
+  .hotspot-m.layout-right .label { left: 20px; }
+  .hotspot-m.layout-right .label::before {
+    content: ''; position: absolute; top: 50%; left: -6px; transform: translateY(-50%);
+    border-width: 6px 6px 6px 0; border-style: solid; border-color: transparent var(--glass-border) transparent transparent;
+  }
+  /* 靠左顯示 */
+  .hotspot-m.layout-left .label { right: 20px; left: auto; }
+  .hotspot-m.layout-left .label::before {
+    content: ''; position: absolute; top: 50%; right: -6px; transform: translateY(-50%);
+    border-width: 6px 0 6px 6px; border-style: solid; border-color: transparent transparent transparent var(--glass-border);
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="desktop-view" id="sliderContainer">
+    <div class="layer-right">
+      <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/gw555_outside.jpg?v=688t6id" alt="燈板背面">
+      
+      <div class="hotspot-pc" style="top: 35%; left: 65%;">
+        <div class="dot"></div>
+        <div class="label label-glass">二級迴路LED驅動器，PFC主動功因，漣波&lt;3%幾乎無頻閃，驅動器效率高達91%，無頻閃、低光衰，照明更舒適。</div>
+      </div>
+      <div class="hotspot-pc pos-left" style="top: 80%; left: 55%;">
+        <div class="dot"></div>
+        <div class="label label-glass">全金屬散熱背板，有效降低熱堆積，將耐用度提升至工業級標準，光源壽命可超越十年。</div>
+      </div>
+    </div>
+
+    <div class="layer-left" id="overlayLayer">
+      <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/gw555_inside.jpg?v=sj48qa" id="overlayImage" alt="燈罩內部">
+      
+      <div class="hotspot-pc pos-left" style="top: 45%; left: 38%;">
+        <div class="dot"></div>
+        <div class="label label-glass">高規格LED晶粒搭配高階透鏡光學，專業直下式設計解決傳統側發光導光板容易老化泛黃的通病。</div>
+      </div>
+      <div class="hotspot-pc" style="top: 75%; left: 35%;">
+        <div class="dot"></div>
+        <div class="label label-glass">高反射率<br>內層塗料</div>
+      </div>
+      
+      <div class="handle"><span>&#10094; &#10095;</span></div>
+    </div>
+
+    <div class="caption-area">
+      <div class="caption">◀ 燈罩內部構造</div>
+      <div class="caption">燈板背部細節 ▶</div>
+    </div>
+  </div>
+
+  <div class="mobile-view">
+    <div class="product-section">
+      <div class="section-title">燈罩內部構造</div>
+      <div class="image-container">
+        <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/gw555_inside.jpg?v=sj48qa" alt="燈罩內部">
+        
+        <div class="hotspot-m layout-right" style="top: 40%; left: 35%;">
+          <div class="dot"></div>
+          <div class="label label-glass"><strong>高透光學透鏡</strong><br>高規格LED晶粒搭配直下式設計，精準導光。</div>
+        </div>
+        <div class="hotspot-m layout-right" style="top: 80%; left: 25%;">
+          <div class="dot"></div>
+          <div class="label label-glass"><strong>高反射率塗層</strong><br>特殊內層塗料，最大化亮度輸出。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-section">
+      <div class="section-title">燈板背部細節</div>
+      <div class="image-container">
+        <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/gw555_outside.jpg?v=688t6id" alt="燈板背面">
+        
+        <div class="hotspot-m layout-left" style="top: 40%; left: 55%;">
+          <div class="dot"></div>
+          <div class="label label-glass"><strong>二級迴路驅動器</strong><br>PFC主動功因，無頻閃低光衰。</div>
+        </div>
+        <div class="hotspot-m layout-left" style="top: 80%; left: 65%;">
+          <div class="dot"></div>
+          <div class="label label-glass"><strong>全金屬散熱背板</strong><br>耐用度達工業級，光源壽命超越十年。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // 桌機版滑動邏輯
+  const container = document.getElementById('sliderContainer');
+  const overlayLayer = document.getElementById('overlayLayer');
+  const overlayImage = document.getElementById('overlayImage');
+
+  function initImageSize() {
+    if(container.offsetParent !== null) { // 只在顯示時計算
+        const width = container.offsetWidth;
+        overlayImage.style.width = width + 'px';
+    }
+  }
+
+  // 監聽 Resize 與載入
+  window.addEventListener('resize', initImageSize);
+  overlayImage.onload = initImageSize;
+  
+  // 定期檢查 (防止切換 display 時跑版)
+  setInterval(initImageSize, 500);
+
+  function updateSlider(clientX) {
+    const rect = container.getBoundingClientRect();
+    let x = clientX - rect.left;
+    if (x < 0) x = 0;
+    if (x > rect.width) x = rect.width;
+    const percentage = (x / rect.width) * 100;
+    overlayLayer.style.width = percentage + '%';
+  }
+
+  // 簡單滑鼠跟隨 (桌面)
+  container.addEventListener('mousemove', (e) => {
+    // 只有在視窗寬度大於 768px 時才執行
+    if (window.innerWidth > 768) {
+       updateSlider(e.clientX);
+    }
+  });
+  
+  // 點擊支援
+  container.addEventListener('click', (e) => {
+    if (window.innerWidth > 768) {
+       updateSlider(e.clientX);
+    }
+  });
+
+  // 初次執行
+  initImageSize();
+</script>
+
+</body>
+</html>
