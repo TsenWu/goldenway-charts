@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>產品構造透視互動展示</title>
+<title>產品構造透視互動展示 (修復版)</title>
 <style>
   /* [修正] 全域盒模型 */
   * { box-sizing: border-box; }
@@ -23,7 +23,7 @@
     --handle-line: #333333;
     --dot-core: rgba(0, 0, 0, 0.85);
     --dot-halo: rgba(255, 255, 255, 0.6);
-    --glass-bg: rgba(255, 255, 255, 0.35); /*稍微調高不透明度，手機閱讀更清楚*/
+    --glass-bg: rgba(255, 255, 255, 0.35);
     --glass-border: rgba(255, 255, 255, 0.5);
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
   }
@@ -84,13 +84,18 @@
   }
   .layer-left img { width: 100vw; max-width: none; }
   
+  /* [修正] 把手樣式：現在它是獨立的，不受 overflow 影響 */
   .handle {
-    position: absolute; top: 50%; right: -20px;
+    position: absolute; 
+    top: 50%; 
+    left: 50%; /* JS 會動態控制這個數值 */
     width: 40px; height: 40px;
-    background: var(--handle-color); border-radius: 50%; z-index: 20;
-    transform: translateY(-50%);
+    background: var(--handle-color); border-radius: 50%; 
+    z-index: 25; /* 確保在最上層 */
+    transform: translate(-50%, -50%); /* 確保中心對齊分隔線 */
     display: flex; justify-content: center; align-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    pointer-events: none; /* 讓滑鼠事件穿透到容器 */
   }
   .handle span { color: var(--handle-line); font-weight: bold; letter-spacing: -2px; }
 
@@ -115,23 +120,21 @@
 
 
   /* =========================================
-     手機版樣式 (Mobile Styles) - 大幅更新
+     手機版樣式 (Mobile Styles)
      ========================================= */
   .mobile-view {
     display: none; width: 100%;
-    /* 左右保留緩衝區，配合 overflow: visible 讓文字不被切掉 */
     padding: 5px 5px; 
   }
 
   @media (max-width: 768px) {
-    .mobile-view { display: flex; flex-direction: column; gap: 15px; } /* 增加卡片間距 */
+    .mobile-view { display: flex; flex-direction: column; gap: 15px; }
     .desktop-view { display: none !important; }
     html, body { overflow-y: auto; height: auto; }
   }
 
   .product-section {
     position: relative; width: 100%;
-    /* [重點] 移除 overflow: hidden，讓文字標籤可以稍微凸出去 */
     overflow: visible; 
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     border-radius: 8px;
@@ -140,10 +143,9 @@
   .section-title {
     position: absolute; top: 0; left: 0; width: 100%; z-index: 5;
     text-align: center; padding: 12px 0;
-    background: rgba(0, 0, 0, 0.6); /* 加深背景增加可讀性 */
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     color: #fff; font-weight: bold; font-size: 1.1rem; letter-spacing: 1px;
-    /* 標題自己負責圓角 */
     border-radius: 8px 8px 0 0; 
   }
 
@@ -152,20 +154,15 @@
   .image-container img { 
     width: 100%; 
     display: block;
-    
-    /* [重點] 強制卡片高度，解決太扁與重疊問題 */
     min-height: 480px; 
-    object-fit: cover; /* 讓圖片填滿高度，不會變形 (Zoom-in 效果) */
-    object-position: center; /* 圖片居中 */
-    
-    /* 圖片自己負責圓角 */
+    object-fit: cover;
+    object-position: center;
     border-radius: 8px; 
   }
 
   .hotspot-m { position: absolute; width: 0; height: 0; z-index: 10; }
   .hotspot-m .label {
     position: absolute; top: 50%; transform: translateY(-50%);
-    /* 稍微縮小手機版文字寬度，避免凸出太多 */
     width: max-content; max-width: 140px; 
     z-index: 15; font-size: 13px; font-weight: 600;
   }
@@ -198,8 +195,11 @@
         <div class="label label-glass">全金屬散熱背板，有效降低熱堆積，將耐用度提升至工業級標準，光源壽命可超越十年。</div>
       </div>
     </div>
+    
     <div class="layer-left" id="overlayLayer">
-      <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/555-1.jpg?v=ww0tee" id="GW-555-LED" alt="燈罩內部">
+      <!-- [修正] 這裡的 ID 改回 overlayImage 與 JS 一致 -->
+      <img src="https://system49.webtech.com.tw/web/202200228/archive/image/TSts/555/555-1.jpg?v=ww0tee" id="overlayImage" alt="燈罩內部">
+      
       <div class="hotspot-pc" style="top: 45%; left: 38%;">
         <div class="dot"></div>
         <div class="label label-glass">高規格LED晶粒搭配高階透鏡光學，專業直下式設計解決傳統側發光導光板容易老化泛黃的通病。</div>
@@ -208,8 +208,11 @@
         <div class="dot"></div>
         <div class="label label-glass">高反射率<br>內層塗料</div>
       </div>
-      <div class="handle"><span>&#10094; &#10095;</span></div>
     </div>
+    
+    <!-- [修正] 把 handle 移出來，變成 sliderContainer 的直接子元素，避免被 layer-left 的 overflow 裁切 -->
+    <div class="handle" id="sliderHandle"><span>&#10094; &#10095;</span></div>
+
     <div class="caption-area">
       <div class="caption">◀ 燈罩內部構造</div>
       <div class="caption">燈板背部細節 ▶</div>
@@ -253,16 +256,20 @@
   const container = document.getElementById('sliderContainer');
   const overlayLayer = document.getElementById('overlayLayer');
   const overlayImage = document.getElementById('overlayImage');
+  const sliderHandle = document.getElementById('sliderHandle'); // [修正] 抓取新的把手元素
 
   function initImageSize() {
-    if(container.offsetParent !== null) { 
+    if(container.offsetParent !== null && overlayImage) { 
         const width = container.offsetWidth;
         overlayImage.style.width = width + 'px';
     }
   }
 
   window.addEventListener('resize', initImageSize);
-  overlayImage.onload = initImageSize;
+  // [修正] 增加保護，確保圖片存在才綁定 onload
+  if (overlayImage) {
+      overlayImage.onload = initImageSize;
+  }
   setInterval(initImageSize, 500);
 
   function updateSlider(clientX) {
@@ -270,8 +277,12 @@
     let x = clientX - rect.left;
     if (x < 0) x = 0;
     if (x > rect.width) x = rect.width;
+    
     const percentage = (x / rect.width) * 100;
+    
+    // [修正] 同時更新 遮罩寬度 與 把手位置
     overlayLayer.style.width = percentage + '%';
+    sliderHandle.style.left = percentage + '%'; 
   }
 
   container.addEventListener('mousemove', (e) => {
